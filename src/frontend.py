@@ -272,6 +272,8 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 			traceValues, dataFields,
 			show_hist=False, show_rug=False,
 			)
+		for trace in out.data:
+			trace['fill'] = 'tozeroy'
 		out.layout['title'] = title
 		return out
 
