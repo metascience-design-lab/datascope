@@ -221,7 +221,7 @@ PLOTLY_DEFAULT_COLORS = [
     '#e377c2',  # raspberry yogurt pink
     '#7f7f7f',  # middle gray
     '#bcbd22',  # curry yellow-green
-    '#17becf',   # blue-teal
+    '#17becf',  # blue-teal
 	]
 
 @app.callback(
@@ -332,8 +332,14 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				name=field,
 				y=[sum(values)/len(values)],
 				x=[field],
+				error_y=dict(
+					type='data',
+					symmetric=False,
+					array=[max(values)],
+					arrayminus=[min(values)],
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					),
 				mode='markers',
-				#TODO add error bars
 				marker=dict(
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 					)
