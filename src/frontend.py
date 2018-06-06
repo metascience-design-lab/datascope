@@ -211,6 +211,19 @@ def showOrHideHistogramControls(graphType:int):
 		return {'display': 'block'}
 	return {'display': 'none'}
 
+PLOTLY_DEFAULT_COLORS = [
+    '#1f77b4',  # muted blue
+    '#ff7f0e',  # safety orange
+    '#2ca02c',  # cooked asparagus green
+    '#d62728',  # brick red
+    '#9467bd',  # muted purple
+    '#8c564b',  # chestnut brown
+    '#e377c2',  # raspberry yogurt pink
+    '#7f7f7f',  # middle gray
+    '#bcbd22',  # curry yellow-green
+    '#17becf',   # blue-teal
+	]
+
 @app.callback(
 	Output(GRAPH_ID, 'figure'),
 	[Input(DATATYPEDROPDOWN_ID, 'value'),
@@ -304,40 +317,61 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 
 		traces = [
 			dict(
-				type='scatter',
-				name=field,
-				y=[d[field] for d in filteredDataSet],
-				x=[d[DATA_IDFIELD] for d in filteredDataSet],
-				mode='markers',
+				visible='legendonly',
+				showlegend=False,
+				line=dict(color='#f442ee'),
+				y=[0.0 for i in range(len(values))],
+				x=['0.0' for i in range(len(values))],
 				)
-			for field in dataFields
+			for values in traceValues
 			]
 
+		traces += [
+			dict(
+				type='scatter',
+				name=field,
+				y=[sum(values)/len(values)],
+				x=[field],
+				mode='markers',
+				#TODO add error bars
+				marker=dict(
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+					)
+				)
+			for i,(field,values) in enumerate(zip(dataFields,traceValues))
+			] 
+
 		layout['xaxis'] = dict(
-			title=DATA_IDFIELD,
 			type='category',
-			titlefont=dict(
-				size=12,
-				),
 			)
 
 	elif graphType == 'Bar Plot':
 
 		traces = [
+			dict(
+				visible='legendonly',
+				showlegend=False,
+				line=dict(color='#f442ee'),
+				y=[0.0 for i in range(len(values))],
+				x=['0.0' for i in range(len(values))],
+				)
+			for values in traceValues
+			]
+
+		traces += [
 			go.Bar(
 				name=field,
-				y=[d[field] for d in filteredDataSet],
-				x=[d[DATA_IDFIELD] for d in filteredDataSet],
+				y=[sum(values)/len(values)],
+				x=[field],
+				marker=dict(
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+					)
 				)
-			for field in dataFields
+			for i,(field,values) in enumerate(zip(dataFields,traceValues))
 			]
 
 		layout['xaxis'] = dict(
-			title=DATA_IDFIELD,
 			type='category',
-			titlefont=dict(
-				size=12,
-				),
 			)
 
 	return go.Figure(data=traces, layout=layout)
