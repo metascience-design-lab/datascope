@@ -369,10 +369,12 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				name=field,
 				y=[sum(values)/len(values)],
 				x=[field],
+				opacity=0.6,
 				marker=dict(
-					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
-					)
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					),
 				)
+
 			for i,(field,values) in enumerate(zip(dataFields,traceValues))
 			]
 
