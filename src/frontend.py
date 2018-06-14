@@ -57,12 +57,15 @@ GROUPINGDROPDOWN_ID = '5'
 
 # names and ordering of available graph types
 GRAPHTYPE_CHOICES = [
-	'Histogram', # leftmost choice
+	'Raw Data', # leftmost choice
+	'Histogram',
 	'Density Plot',
 	'Violin Plot',
+	'Table',
 	'Box Plot',
 	'Bar Plot',
-	'Dot Plot', # rightmost choice
+	'Dot Plot',
+	'Comments',# rightmost choice
 	]
 
 # parses the parameters into helper variables
@@ -302,7 +305,16 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				)
 			for field,values in zip(dataFields,traceValues)
 			]
+	
+	elif graphType == 'Table':
 
+		traces = [
+			go.Table(
+				header = dict(values = (dataFields)),
+				cells = dict(values = (traceValues))
+			)
+		]
+		
 	elif graphType == 'Box Plot':
 
 		traces = [
