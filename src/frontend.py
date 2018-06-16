@@ -101,12 +101,10 @@ INITIAL_LAYOUT = html.Div(children=[
 	# TODO data filter checkbox
 	html.Div(children=[
 		html.Div(children=[
-		dcc.Markdown('''
-Select data filters:
-			'''),
 		# TODO Note: UI cannot be customized as Dash does not support all HTML tags
 		html.Div(children=[
 				dcc.Slider(
+
 					id='vertical slider',
 					min=0,
 					max=2,
