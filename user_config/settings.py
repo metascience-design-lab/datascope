@@ -2,7 +2,7 @@ DATA_CSVFILEPATH = 'ind-diff-regression.csv'
 DATA_IDFIELD = 'participant' # a field which uniquely identifies each row
 
 INITIAL_GRAPHTYPE = 'Density Plot'
-INITIAL_DATAFIELDS = ['rktConceptual', 'rktProcedural']
+INITIAL_DATAFIELDS = ['rktConceptual']
 INITIAL_DATAFILTERS = ['nativeEnglish', 'not_analyticMajor']
 
 INITIAL_HISTOGRAM_BINSIZE = 5
