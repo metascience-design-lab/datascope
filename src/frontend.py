@@ -10,34 +10,31 @@ has three main parts:
 
 # imports backend and information from ../user_config
 
-if __name__ == '__main__':  # if using the local machine as the web server
-    import sys
-    from backend import DataSet
+if __name__ == '__main__': # if using the local machine as the web server
+	import sys
+	from backend import DataSet
+	sys.path.insert(1, '../user_config')
+	from settings import (
+		DATA_CSVFILEPATH, DATA_IDFIELD,
+		INITIAL_GRAPHTYPE, INITIAL_DATAFIELDS, INITIAL_DATAFILTERS,
+		INITIAL_HISTOGRAM_BINSIZE, MAX_HISTOGRAM_BINSIZE,
+		HISTOGRAM_BINSIZE_INCREMENT,
+		)
+	CSVPATH_CACHE = DATA_CSVFILEPATH
+	DATA_CSVFILEPATH = '../user_config/' + DATA_CSVFILEPATH
+	import filter_functions as FILTER_FUNCTIONS
 
-    sys.path.insert(1, '../user_config')
-    from settings import (
-        DATA_CSVFILEPATH, DATA_IDFIELD,
-        INITIAL_GRAPHTYPE, INITIAL_DATAFIELDS, INITIAL_DATAFILTERS,
-        INITIAL_HISTOGRAM_BINSIZE, MAX_HISTOGRAM_BINSIZE,
-        HISTOGRAM_BINSIZE_INCREMENT,
-    )
-
-    CSVPATH_CACHE = DATA_CSVFILEPATH
-    DATA_CSVFILEPATH = '../user_config/' + DATA_CSVFILEPATH
-    import filter_functions as FILTER_FUNCTIONS
-
-else:  # if using gunicorn (../Procfile) + Heroku as the web server
-    from src.backend import DataSet
-    from user_config.settings import (
-        DATA_CSVFILEPATH, DATA_IDFIELD,
-        INITIAL_GRAPHTYPE, INITIAL_DATAFIELDS, INITIAL_DATAFILTERS,
-        INITIAL_HISTOGRAM_BINSIZE, MAX_HISTOGRAM_BINSIZE,
-        HISTOGRAM_BINSIZE_INCREMENT,
-    )
-
-    CSVPATH_CACHE = DATA_CSVFILEPATH
-    DATA_CSVFILEPATH = 'user_config/' + DATA_CSVFILEPATH
-    import user_config.filter_functions as FILTER_FUNCTIONS
+else: # if using gunicorn (../Procfile) + Heroku as the web server
+	from src.backend import DataSet
+	from user_config.settings import (
+		DATA_CSVFILEPATH, DATA_IDFIELD,
+		INITIAL_GRAPHTYPE, INITIAL_DATAFIELDS, INITIAL_DATAFILTERS,
+		INITIAL_HISTOGRAM_BINSIZE, MAX_HISTOGRAM_BINSIZE,
+		HISTOGRAM_BINSIZE_INCREMENT,
+		)
+	CSVPATH_CACHE = DATA_CSVFILEPATH
+	DATA_CSVFILEPATH = 'user_config/' + DATA_CSVFILEPATH
+	import user_config.filter_functions as FILTER_FUNCTIONS
 
 # imports graphing and page layout libraries
 import dash
@@ -46,10 +43,9 @@ import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
 from dash.dependencies import Input, Output
-import numpy as np
 
 CSS_URL = 'https://codepen.io/chriddyp/pen/bWLwgP.css'
-WEBAPP_TITLE = CSVPATH_CACHE[:-4]  # title of the webpages' tab
+WEBAPP_TITLE = CSVPATH_CACHE[:-4] # title of the webpages' tab
 
 # unique string IDs for UI elements
 GRAPH_ID = '0'
@@ -61,43 +57,33 @@ GROUPINGDROPDOWN_ID = '5'
 
 # names and ordering of available graph types
 GRAPHTYPE_CHOICES = [
-    'Histogram',  # leftmost choice
-    'Density Plot',
-    'Violin Plot',
-    'Box Plot',
-    'Bar Plot',
-    'Dot Plot',  # rightmost choice
-]
-FILTER_CHOICES = [
-	'All',
-	'analyticMajor',
-	'nativeEnglish'
-]
+	'Histogram', # leftmost choice
+	'Density Plot',
+	'Violin Plot',
+	'Box Plot',
+	'Bar Plot',
+	'Dot Plot', # rightmost choice
+	]
 
 # parses the parameters into helper variables
 dataSet = DataSet()
 dataSet.addCsv(DATA_CSVFILEPATH)
 dataFields = [
-    fieldName
-    for fieldName in dataSet.getSchema(DATA_CSVFILEPATH)
-]
-filterFunctions = {}  # maps filter function names' to their function objects
-
-
+	fieldName
+	for fieldName in dataSet.getSchema(DATA_CSVFILEPATH)
+	]
+filterFunctions = {} # maps filter function names' to their function objects
 def _negate(func):
-    return (lambda x: not func(x))
-
-
+	return (lambda x : not func(x))
 for name, func in FILTER_FUNCTIONS.__dict__.items():
-    if callable(func):
-        filterFunctions[name] = func
-        # adds a negated version of every filter
-        filterFunctions['not_' + name] = _negate(func)
-
-print (filterFunctions)
+	if callable(func):
+		filterFunctions[name] = func
+		# adds a negated version of every filter
+		filterFunctions['not_' + name] = _negate(func)
 
 # lays out the basic HTML along with the interactive components
 INITIAL_LAYOUT = html.Div(children=[
+<<<<<<< HEAD
 	# TODO data filter checkbox
 	html.Div(children=[
 		html.Div(children=[
@@ -119,100 +105,113 @@ INITIAL_LAYOUT = html.Div(children=[
 			),
 		],
 			style={'position': 'absolute', 'left': '40', 'top': '200'}
+=======
+
+	# displays the data, controlled by the callback function 'updateGraph'
+	# defined below
+	dcc.Graph(
+		id=GRAPH_ID,
+		config=dict(displayModeBar=False),
+>>>>>>> parent of f840ee6... fixed some plots
 		),
 
-		# displays the data, controlled by the callback function 'updateGraph'
-		# defined below
-		html.Div(children=[
-			dcc.Graph(
-				id=GRAPH_ID,
-				config=dict(displayModeBar=False),
-				# Full screen: config={ 'fillFrame':True},
-			),
-		],
-			style={'position':'absolute', 'left':'160', 'width': '80%'}
+	# graph type slider
+	dcc.Slider(
+		id=GRAPHTYPESLIDER_ID,
+		min=0,
+		max=len(GRAPHTYPE_CHOICES)-1,
+		marks={i:m for i,m in enumerate(GRAPHTYPE_CHOICES)},
+		included=False,
+		step=None,
+		value=GRAPHTYPE_CHOICES.index(INITIAL_GRAPHTYPE)
 		),
-	],
-	),
 
+	# two line breaks
+	dcc.Markdown('''
+&nbsp;
+		'''),
+	dcc.Markdown('''
+&nbsp;
+		'''),
 
 	html.Div(children=[
-		html.Div(children=[
-			# graph type slider
-			dcc.Slider(
-				id=GRAPHTYPESLIDER_ID,
-				min=0,
-				max=len(GRAPHTYPE_CHOICES)-1,
-				marks={i:m for i,m in enumerate(GRAPHTYPE_CHOICES)},
-				included=False,
-				step=None,
-				value=GRAPHTYPE_CHOICES.index(INITIAL_GRAPHTYPE),
-				),
 
-			# two line breaks
-			dcc.Markdown('''
-&nbsp;
-				'''),
-
-			# data field selector
-			dcc.Markdown('''
+		# data field selector
+		dcc.Markdown('''
 Select data fields:
-				'''),
-			dcc.Dropdown(
-				id=DATATYPEDROPDOWN_ID,
-				options=[{'label':e,'value':e} for e in dataFields],
-				multi=True,
-				value=INITIAL_DATAFIELDS,
-				placeholder=''
-				),
-
-			],
-			id='dropdown'
+			'''),
+		dcc.Dropdown(
+			id=DATATYPEDROPDOWN_ID,
+			options=[{'label':e,'value':e} for e in dataFields],
+			multi=True,
+			value=INITIAL_DATAFIELDS,
+			placeholder=''
 			),
 
-			# line break
-			dcc.Markdown('''
+		# line break
+		dcc.Markdown('''
 &nbsp;
-				'''),
+			'''),
 
-		# these controls are only shown when histogram is selected,
-		# as controlled by the callback function 'showOrHideHistogramControls'
-		# defined below
-		html.Div(id='histogram controls', children=[
+		]),
 
-			# bin size slider
-			dcc.Markdown('''
-	Select bin size:
-				'''),
-			dcc.Slider(
-				id=HISTOGRAMBINSLIDER_ID,
-				min=1,
-				max=MAX_HISTOGRAM_BINSIZE,
-				marks=dict(
-					{1:'1'}.items()
-					| {i:str(i) for i in range(
-						HISTOGRAM_BINSIZE_INCREMENT,
-						MAX_HISTOGRAM_BINSIZE+1,
-						HISTOGRAM_BINSIZE_INCREMENT
-						)}.items()
-					),
-				included=False,
-				step=1,
-				value=INITIAL_HISTOGRAM_BINSIZE,
+	# data filter selector
+	dcc.Markdown('''
+Select data filters:
+		'''),
+	dcc.Dropdown(
+		id=FILTERDROPDOWN_ID,
+		options=[
+			{'label':name,'value':name}
+			for name in filterFunctions.keys()
+			],
+		multi=True,
+		value=INITIAL_DATAFILTERS,
+		placeholder='',
+		),
+
+	# line break
+	dcc.Markdown('''
+&nbsp;
+		'''),
+
+	# these controls are only shown when histogram is selected,
+	# as controlled by the callback function 'showOrHideHistogramControls'
+	# defined below
+	html.Div(id='histogram controls', children=[
+
+		# bin size slider
+		dcc.Markdown('''
+Select bin size:
+			'''),
+		dcc.Slider(
+			id=HISTOGRAMBINSLIDER_ID,
+			min=1,
+			max=MAX_HISTOGRAM_BINSIZE,
+			marks=dict(
+				{1:'1'}.items()
+				| {i:str(i) for i in range(
+					HISTOGRAM_BINSIZE_INCREMENT,
+					MAX_HISTOGRAM_BINSIZE+1,
+					HISTOGRAM_BINSIZE_INCREMENT
+					)}.items()
 				),
-
-			]
+			included=False,
+			step=1,
+			value=INITIAL_HISTOGRAM_BINSIZE,
 			),
 
-		# prevents things from being cut off or the elements being
-		# excessively wide on large screens
-	],
-		style={'position':'relative', 'top':'450'}
-	),
-	],
-	style={
-		'maxWidth':'1000px', 'padding-left':'110px', 'padding-right':'110px', 'font':'arial'
-		}
+		# line break
+		dcc.Markdown('''
+&nbsp;
+			'''),
+
+		], style={'display': 'none'}),
+
+	# prevents things from being cut off or the elements being
+	# excessively wide on large screens
+	], style={'maxWidth':'1000px',
+			  'padding-left':'110px', 'padding-right':'110px'}
 	)
 
 # creates the "app" helper variable
@@ -222,21 +221,19 @@ server = app.server
 app.css.append_css(dict(external_url=CSS_URL))
 app.title = WEBAPP_TITLE
 
-
 @app.callback(
-    Output('histogram controls', 'style'),
-    [Input(GRAPHTYPESLIDER_ID, 'value')]
-)
-def showOrHideHistogramControls(graphType: int):
-    """
-    shows or hides the histogram controls depending on
-    whether Histogram is currently selected
-    """
+	Output('histogram controls', 'style'),
+	[Input(GRAPHTYPESLIDER_ID, 'value')]
+	)
+def showOrHideHistogramControls(graphType:int):
+	"""
+	shows or hides the histogram controls depending on
+	whether Histogram is currently selected
+	"""
 
-    if GRAPHTYPE_CHOICES[graphType] == 'Histogram':
-        return {'display': 'block'}
-    return {'display': 'none'}
-
+	if GRAPHTYPE_CHOICES[graphType] == 'Histogram':
+		return {'display': 'block'}
+	return {'display': 'none'}
 
 PLOTLY_DEFAULT_COLORS = [
     '#1f77b4',  # muted blue
@@ -249,197 +246,168 @@ PLOTLY_DEFAULT_COLORS = [
     '#7f7f7f',  # middle gray
     '#bcbd22',  # curry yellow-green
     '#17becf',  # blue-teal
-]
-
+	]
 
 @app.callback(
-    Output(GRAPH_ID, 'figure'),
-    [Input(DATATYPEDROPDOWN_ID, 'value'),
-     #Input(FILTERDROPDOWN_ID, 'value'),
-     Input(GRAPHTYPESLIDER_ID, 'value'),
-     Input(HISTOGRAMBINSLIDER_ID, 'value'),
-     Input('vertical slider', 'value'),
-     ]
-)
-def updateGraph(dataFields: list, graphType: int,
-                binSize: int, filterIndex: int):
-    """
-    updates the graph based on the chosen data fields, data filters,
-    graph type, and bin size (the latter if histogram is selected)
-    """
+	Output(GRAPH_ID, 'figure'),
+	[Input(DATATYPEDROPDOWN_ID, 'value'),
+	 Input(FILTERDROPDOWN_ID, 'value'),
+	 Input(GRAPHTYPESLIDER_ID, 'value'),
+	 Input(HISTOGRAMBINSLIDER_ID, 'value'),
+	 ]
+	)
+def updateGraph(dataFields:list, filterNames:list, graphType:int,
+				binSize:int):
+	"""
+	updates the graph based on the chosen data fields, data filters,
+	graph type, and bin size (the latter if histogram is selected)
+	"""
 
-    # title of the graph, set to the filename for now
-    title = CSVPATH_CACHE[:-4]
-    filterIndex = FILTER_CHOICES[filterIndex]
-    if filterIndex == 'All':
-        trace_data = [[float(d[field]) for d in dataSet] for field in dataFields]
-        #trace_data = [x_data]
+	# title of the graph, set to the filename for now
+	title = CSVPATH_CACHE[:-4]
 
-        print (trace_data)
+	if len(dataFields) == 0:
+		return go.Figure(layout=dict(title=title)) # empty graph
 
-        group_labels = dataFields
-    else :
-        if len(dataFields) == 0:
-            return go.Figure(layout=dict(title=title))  # empty graph
+	# function which filters a piece of data
+	# depending on the filters the user selected
+	def dataFilter(data:dict) -> bool:
+		for name in filterNames:
+			if not filterFunctions[name](data):
+				return False
+		return True
 
-        # function which filters a piece of data
-        # depending on the filters the user selected
-        def dataFilter(data: dict) -> bool:
-            if not filterFunctions[filterIndex](data):
-                return False
-            return True
+	filteredDataSet = tuple(filter(dataFilter, dataSet))
 
-        def dataNotFilter(data: dict) -> bool:
-            if not filterFunctions["not_" + filterIndex](data):
-                return False
-            return True
+	if len(filteredDataSet) == 0:
+		return go.Figure(layout=dict(title=title)) # empty graph
 
-        filteredDataSet = tuple(filter(dataFilter, dataSet))
-        filteredNotDataSet = tuple(filter(dataNotFilter, dataSet))
+	# convert the data being plotted into numbers
+	try:
+		traceValues = [
+			[ float(d[field]) for d in filteredDataSet ]
+			for field in dataFields
+			]
+	except ValueError:
+		return go.Figure(layout=dict(title="Error: Can't plot non-numeric data on a numeric axis."))
 
-        if len(filteredDataSet) == 0:
-            return go.Figure(layout=dict(title=title))  # empty graph
+	# turn the position on the graph type slider into a graph type name
+	graphType = GRAPHTYPE_CHOICES[graphType]
 
-        # convert the data being plotted into numbers
-        try:
-            traceValues = [
-                [float(d[field]) for d in filteredDataSet]
-                for field in dataFields
-            ]
-            traceNotValues = [
-                [float(d[field]) for d in filteredNotDataSet]
-                for field in dataFields
-            ]
-        except ValueError:
-            return go.Figure(layout=dict(title="Error: Can't plot non-numeric data on a numeric axis."))
+	if graphType == 'Histogram':
 
-        for i in traceValues :
-            print(len(i))
+		out = ff.create_distplot(
+			traceValues, dataFields,
+			show_curve=False, show_rug=False, bin_size=binSize,
+			)
+		out.layout['title'] = title
+		return out
 
-        for i in traceNotValues:
-            print(len(i))
+	if graphType == 'Density Plot':
 
-        trace_data = [traceValues[0], traceNotValues[0]]
-        group_labels = [filterIndex, "not_" + filterIndex]
+		out = ff.create_distplot(
+			traceValues, dataFields,
+			show_hist=False, show_rug=False,
+			)
+		for trace in out.data:
+			trace['fill'] = 'tozeroy'
+		out.layout['title'] = title
+		return out
 
-    # turn the position on the graph type slider into a graph type name
-    graphType = GRAPHTYPE_CHOICES[graphType]
+	layout = dict(title=title) # layout used by all of the graph types below
 
-    if graphType == 'Histogram':
-        out = ff.create_distplot(
-            trace_data, group_labels,
-            show_curve=False, show_rug=False, bin_size=binSize,
-        )
-        out.layout['title'] = title
-        return out
+	if graphType == 'Violin Plot':
 
-    if graphType == 'Density Plot':
-        out = ff.create_distplot(
-            trace_data, group_labels,
-            show_hist=False, show_rug=False,
-        )
-        #out.append_trace(traceNotValues)
-        for trace in out.data:
-            trace['fill'] = 'tozeroy'
-        out.layout['title'] = title
+		traces = [
+			dict(
+				type='violin',
+				name=field,
+				y=values,
+				)
+			for field,values in zip(dataFields,traceValues)
+			]
 
-        return out
+	elif graphType == 'Box Plot':
 
-    layout = dict(title=title)  # layout used by all of the graph types below
+		traces = [
+			go.Box(
+				name=field,
+				y=values,
+				)
+			for field,values in zip(dataFields,traceValues)
+			]
 
-    if graphType == 'Violin Plot':
+	elif graphType == 'Dot Plot':
 
-        traces = [
-            dict(
-                type='violin',
-                name=field,
-                y=values,
-            )
-            for field, values in zip(group_labels, trace_data)
-        ]
+		traces = [
+			dict(
+				visible='legendonly',
+				showlegend=False,
+				line=dict(color='#f442ee'),
+				y=[0.0 for i in range(len(values))],
+				x=['0.0' for i in range(len(values))],
+				)
+			for values in traceValues
+			]
 
-    elif graphType == 'Box Plot':
+		traces += [
+			dict(
+				type='scatter',
+				name=field,
+				y=[sum(values)/len(values)],
+				x=[field],
+				error_y=dict(
+					type='data',
+					symmetric=False,
+					array=[max(values) - sum(values)/len(values)],
+					arrayminus=[sum(values)/len(values) - min(values)],
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					),
+				mode='markers',
+				marker=dict(
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+					)
+				)
+			for i,(field,values) in enumerate(zip(dataFields,traceValues))
+			] 
 
-        traces = [
-            go.Box(
-                name=field,
-                y=values,
-            )
-            for field, values in zip(group_labels, trace_data)
-        ]
+		layout['xaxis'] = dict(
+			type='category',
+			)
 
-    elif graphType == 'Dot Plot':
+	elif graphType == 'Bar Plot':
 
-        traces = [
-            dict(
-                visible='legendonly',
-                showlegend=False,
-                line=dict(color='#f442ee'),
-                y=[0.0 for i in range(len(values))],
-                x=['0.0' for i in range(len(values))],
-            )
-            for values in trace_data
-        ]
+		traces = [
+			dict(
+				visible='legendonly',
+				showlegend=False,
+				line=dict(color='#f442ee'),
+				y=[0.0 for i in range(len(values))],
+				x=['0.0' for i in range(len(values))],
+				)
+			for values in traceValues
+			]
 
-        traces += [
-            dict(
-                type='scatter',
-                name=field,
-                y=[sum(values) / len(values)],
-                x=[field],
-                error_y=dict(
-                    type='data',
-                    symmetric=True,
-                    array=[np.std(values) / np.sqrt(len(values))],
-                    color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
-                ),
-                mode='markers',
-                marker=dict(
-                    color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
-                ),
-                opacity=0.6,
-            )
-            for i, (field, values) in enumerate(zip(group_labels, trace_data))
-        ]
+		traces += [
+			go.Bar(
+				name=field,
+				y=[sum(values)/len(values)],
+				x=[field],
+				opacity=0.6,
+				marker=dict(
+					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					),
+				)
 
-        layout['xaxis'] = dict(
-            type='category',
-        )
+			for i,(field,values) in enumerate(zip(dataFields,traceValues))
+			]
 
-    elif graphType == 'Bar Plot':
+		layout['xaxis'] = dict(
+			type='category',
+			)
 
-        traces = [
-            dict(
-                visible='legendonly',
-                showlegend=False,
-                #line=dict(color='#f442ee'),
-                y=[0.0 for i in range(len(values))],
-                x=['0.0' for i in range(len(values))],
-            )
-            for values in trace_data
-        ]
+	return go.Figure(data=traces, layout=layout)
 
-        traces += [
-            go.Bar(
-                name=field,
-                y=[sum(values) / len(values)],
-                x=[field],
-                opacity=0.6,
-                marker=dict(
-                    color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
-                ),
-            )
+if __name__ == '__main__': # if using the local machine as the web server
 
-            for i, (field, values) in enumerate(zip(group_labels, trace_data))
-        ]
-
-        layout['xaxis'] = dict(
-            type='category',
-        )
-
-    return go.Figure(data=traces, layout=layout)
-
-
-if __name__ == '__main__':  # if using the local machine as the web server
-
-    app.run_server(debug=True)
+	app.run_server(debug=True)
