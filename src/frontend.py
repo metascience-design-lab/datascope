@@ -305,8 +305,8 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				)
 			for field,values in zip(dataFields,traceValues)
 			]
-	
-	elif graphType == 'Table':
+		
+	elif graphType == 'Raw Data':
 
 		traces = [
 			go.Table(
@@ -314,6 +314,47 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				cells = dict(values = (traceValues))
 			)
 		]
+	
+	elif graphType == 'Table':
+		# Initialize nested list for table Cells
+		categories = [['Average','Range','Maximum','Minimum']]
+
+		# List elements for nested list, to be zipped together later
+		tableHeaders = ['Categories']
+		tableHolder = []
+		tableAverage = []
+		tableMinimum = []
+		tableMaximum = []
+		tableRange = []
+
+		# Adapt headers to match user choices
+		for header in range(len(dataFields)):
+			tableHeaders.append(str(dataFields[header]))
+		
+		# Anaylze data from traceValues, which is determined by dataFields
+		for row in traceValues:
+			tableAverage.append(round(sum(row)/len(row),3))
+			tableMinimum.append(min(row))
+			tableMaximum.append(max(row))
+			tableRange.append(round(max(row)-min(row),3))
+		
+		# Zip individual analyses together	
+			# zip() creates tuples, but dash only accepts lists of lists, not lists of tuples
+			# Thus, map() is used to convert tuples to list, and list() is used to convert the
+			# map_object into a list, as map_objects are not JSON serializable. Individual lists
+			# are then appended to the categories nested list to comply with dash syntax
+		tableHolder.append(list(map(list, zip(tableAverage, tableRange,
+						      tableMaximum, tableMinimum))))
+		for index in range(len(tableHolder[0])):
+			categories.append(tableHolder[0][index])
+
+		traces = [
+			go.Table(
+				header = dict(values = (tableHeaders)),
+				cells = dict(values = (categories))
+			)
+		]
+
 		
 	elif graphType == 'Box Plot':
 
