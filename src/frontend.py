@@ -42,7 +42,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+import json
+import numpy as np
+import scipy as sp
 
 CSS_URL = 'https://codepen.io/chriddyp/pen/bWLwgP.css'
 WEBAPP_TITLE = CSVPATH_CACHE[:-4] # title of the webpages' tab
