@@ -316,43 +316,55 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 		]
 	
 	elif graphType == 'Table':
-		# Initialize nested list for table Cells
-		categories = [['Average','Range','Maximum','Minimum']]
 
-		# List elements for nested list, to be zipped together later
-		tableHeaders = ['Categories']
+		categories = [['N','Mean ± Std Dev', 'Standard Error', 'Median', 'Mode',
+					   'Range','Maximum','Minimum','Skewness', 'Kurtosis']]
+
+		tableHeaders = ['']
 		tableHolder = []
+		tableNumber = []
 		tableAverage = []
+		tableError = []
+		tableMedian = []
+		tableMode = []
 		tableMinimum = []
 		tableMaximum = []
 		tableRange = []
+		tableSkew = []
+		tableKurtosis = []
 
-		# Adapt headers to match user choices
 		for header in range(len(dataFields)):
 			tableHeaders.append(str(dataFields[header]))
-		
-		# Anaylze data from traceValues, which is determined by dataFields
+
 		for row in traceValues:
-			tableAverage.append(round(sum(row)/len(row),3))
+			tableNumber.append('81')
+			tableAverage.append(str(round(sum(row)/len(row),3)) + ' ± ' +
+							str(round(np.std(row)/np.sqrt(len(row)),1)))
+			tableError.append(round(sp.stats.sem(row),3))
+			tableMedian.append(str(np.median(row)))
+			m = sp.stats.mode(row)
+			tableMode.append(str(m[0][0]))
 			tableMinimum.append(min(row))
 			tableMaximum.append(max(row))
 			tableRange.append(round(max(row)-min(row),3))
-		
-		# Zip individual analyses together	
-			# zip() creates tuples, but dash only accepts lists of lists, not lists of tuples
-			# Thus, map() is used to convert tuples to list, and list() is used to convert the
-			# map_object into a list, as map_objects are not JSON serializable. Individual lists
-			# are then appended to the categories nested list to comply with dash syntax
-		tableHolder.append(list(map(list, zip(tableAverage, tableRange,
-						      tableMaximum, tableMinimum))))
+			tableSkew.append(round(sp.stats.skew(row),3))
+			tableKurtosis.append(round(sp.stats.kurtosis(row),3))
+
+		tableHolder.append(list(map(list, zip(tableNumber, tableAverage, tableError,
+						      	tableMedian, tableMode, tableRange,
+						      	tableMinimum, tableMaximum, tableSkew,
+						      	tableKurtosis))))
+
 		for index in range(len(tableHolder[0])):
 			categories.append(tableHolder[0][index])
 
 		traces = [
 			go.Table(
-				header = dict(values = (tableHeaders)),
-				cells = dict(values = (categories))
-			)
+				header = dict(values = (tableHeaders),
+							  align = ['left','right']),
+				cells = dict(values = (categories),
+							 align = ['left','right'])
+				)
 		]
 
 		
