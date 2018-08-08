@@ -236,12 +236,12 @@ def showOrHideHistogramControls(graphType:int):
 	return {'display': 'none'}
 
 PLOTLY_DEFAULT_COLORS = [
-    '#1b9e77' ,  # muted blue
-    '#d95f02',  # safety orange
-    '##7570b3',  # cooked asparagus green
-    '#d62728',  # brick red
-    '#9467bd',  # muted purple
-    '#8c564b',  # chestnut brown
+    '#e41a1c' , # muted blue
+    '#377eb8',  # safety orange
+    '#4daf4a', # cooked asparagus green
+    '#66c2a5',  # brick red
+    '#fc8d62',  # muted purple
+    '#8da0cb',  # chestnut brown
     '#e377c2',  # raspberry yogurt pink
     '#7f7f7f',  # middle gray
     '#bcbd22',  # curry yellow-green
