@@ -236,9 +236,9 @@ def showOrHideHistogramControls(graphType:int):
 	return {'display': 'none'}
 
 PLOTLY_DEFAULT_COLORS = [
-    '#1f77b4',  # muted blue
-    '#ff7f0e',  # safety orange
-    '#2ca02c',  # cooked asparagus green
+    '#1b9e77' ,  # muted blue
+    '#d95f02',  # safety orange
+    '##7570b3',  # cooked asparagus green
     '#d62728',  # brick red
     '#9467bd',  # muted purple
     '#8c564b',  # chestnut brown
@@ -369,7 +369,7 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 					)
 				)
 			for i,(field,values) in enumerate(zip(dataFields,traceValues))
-			] 
+			]
 
 		layout['xaxis'] = dict(
 			type='category',
