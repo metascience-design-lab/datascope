@@ -42,7 +42,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+import json
+import numpy as np
+import scipy as sp
 
 CSS_URL = 'https://codepen.io/chriddyp/pen/bWLwgP.css'
 WEBAPP_TITLE = CSVPATH_CACHE[:-4] # title of the webpages' tab
@@ -57,12 +60,15 @@ GROUPINGDROPDOWN_ID = '5'
 
 # names and ordering of available graph types
 GRAPHTYPE_CHOICES = [
-	'Histogram', # leftmost choice
+	'Raw Data', # leftmost choice
+	'Histogram',
 	'Density Plot',
 	'Violin Plot',
+	'Table',
 	'Box Plot',
 	'Bar Plot',
-	'Dot Plot', # rightmost choice
+	'Dot Plot',
+	'Comments',# rightmost choice
 	]
 
 # parses the parameters into helper variables
@@ -327,7 +333,69 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				)
 			for field,values in zip(dataFields,traceValues)
 			]
+		
+	elif graphType == 'Raw Data':
 
+		traces = [
+			go.Table(
+				header = dict(values = (dataFields)),
+				cells = dict(values = (traceValues))
+			)
+		]
+	
+	elif graphType == 'Table':
+
+		categories = [['N','Mean ± Std Dev', 'Standard Error', 'Median', 'Mode',
+					   'Range','Maximum','Minimum','Skewness', 'Kurtosis']]
+
+		tableHeaders = ['']
+		tableHolder = []
+		tableNumber = []
+		tableAverage = []
+		tableError = []
+		tableMedian = []
+		tableMode = []
+		tableMinimum = []
+		tableMaximum = []
+		tableRange = []
+		tableSkew = []
+		tableKurtosis = []
+
+		for header in range(len(dataFields)):
+			tableHeaders.append(str(dataFields[header]))
+
+		for row in traceValues:
+			tableNumber.append('81')
+			tableAverage.append(str(round(sum(row)/len(row),3)) + ' ± ' +
+							str(round(np.std(row)/np.sqrt(len(row)),1)))
+			tableError.append(round(sp.stats.sem(row),3))
+			tableMedian.append(str(np.median(row)))
+			m = sp.stats.mode(row)
+			tableMode.append(str(m[0][0]))
+			tableMinimum.append(min(row))
+			tableMaximum.append(max(row))
+			tableRange.append(round(max(row)-min(row),3))
+			tableSkew.append(round(sp.stats.skew(row),3))
+			tableKurtosis.append(round(sp.stats.kurtosis(row),3))
+
+		tableHolder.append(list(map(list, zip(tableNumber, tableAverage, tableError,
+						      	tableMedian, tableMode, tableRange,
+						      	tableMinimum, tableMaximum, tableSkew,
+						      	tableKurtosis))))
+
+		for index in range(len(tableHolder[0])):
+			categories.append(tableHolder[0][index])
+
+		traces = [
+			go.Table(
+				header = dict(values = (tableHeaders),
+							  align = ['left','right']),
+				cells = dict(values = (categories),
+							 align = ['left','right'])
+				)
+		]
+
+		
 	elif graphType == 'Box Plot':
 
 		traces = [
