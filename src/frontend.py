@@ -42,7 +42,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+import json
+import numpy as np
+import scipy as sp
 
 CSS_URL = 'https://codepen.io/chriddyp/pen/bWLwgP.css'
 WEBAPP_TITLE = CSVPATH_CACHE[:-4] # title of the webpages' tab
@@ -305,7 +308,7 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				)
 			for field,values in zip(dataFields,traceValues)
 			]
-		
+
 	elif graphType == 'Raw Data':
 
 		traces = [
@@ -314,7 +317,7 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				cells = dict(values = (traceValues))
 			)
 		]
-	
+
 	elif graphType == 'Table':
 
 		categories = [['N','Mean ± Std Dev', 'Standard Error', 'Median', 'Mode',
@@ -350,13 +353,19 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 			tableSkew.append(round(sp.stats.skew(row),3))
 			tableKurtosis.append(round(sp.stats.kurtosis(row),3))
 
-		tableHolder.append(list(map(list, zip(tableNumber, tableAverage, tableError,
-						      	tableMedian, tableMode, tableRange,
-						      	tableMinimum, tableMaximum, tableSkew,
-						      	tableKurtosis))))
-
 		for index in range(len(tableHolder[0])):
 			categories.append(tableHolder[0][index])
+
+		def generate_table():
+		return html.Table(
+	        # Header
+	        [html.Tr([html.Th(col) for col in tableHeaders])] +
+
+	        # Body
+	        [html.Tr([
+	            html.Td(dataframe.iloc[i][col]) for col in categories
+	        ]) for i in range(min(len(dataframe), max_rows))]
+	    )
 
 		traces = [
 			go.Table(
@@ -367,7 +376,7 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 				)
 		]
 
-		
+
 	elif graphType == 'Box Plot':
 
 		traces = [
@@ -410,7 +419,7 @@ def updateGraph(dataFields:list, filterNames:list, graphType:int,
 					)
 				)
 			for i,(field,values) in enumerate(zip(dataFields,traceValues))
-			] 
+			]
 
 		layout['xaxis'] = dict(
 			type='category',
