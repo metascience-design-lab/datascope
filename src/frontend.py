@@ -764,13 +764,13 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='gray', tickfont = dict(size = 15, family = "Droid Sans Mono")),
-		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='gray'),
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15, family = "Arial"), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15, family = "Arial"), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
 		height=400,
-		titlefont=dict(size=14),
+		titlefont=dict(size=14, family = "Arial"),
 		)
 	if rangeToZeroBoolean:
 		layout['xaxis']['rangemode'] = 'tozero'
