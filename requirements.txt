@@ -1,3 +1,4 @@
+grasia-dash-components==0.3.0
 certifi==2018.4.16
 chardet==3.0.4
 click==6.7
