@@ -705,6 +705,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 	return [instructions]
 
 PLOTLY_DEFAULT_COLORS = [
+
 	# '#1f77b4',  # muted blue
 	# '#ff7f0e',  # safety orange
 	# '#2ca02c',  # cooked asparagus green
@@ -715,16 +716,39 @@ PLOTLY_DEFAULT_COLORS = [
 	# '#7f7f7f',  # middle gray
 	# '#bcbd22',  # curry yellow-green
 	# '#17becf',  # blue-teal
-    '#8dd3c7' , # R Color Brewer - Set 3 (Name)
-    '#fb8072',  # R Color Brewer - Set 3 (Name)
-    '#bebada',  # R Color Brewer - Set 3 (Name)
-    '#984ea3',  # R Color Brewer - Set 3 (Name)
-    '#fdb462',  # R Color Brewer - Set 3 (Name)
-    '#b3de69',  # R Color Brewer - Set 3 (Name)
-    '#80b1d3',  # R Color Brewer - Set 3 (Name)
-    '#bc80bd',  # R Color Brewer - Set 3 (Name)
-    '#fccde5',  # R Color Brewer - Set 3 (Name)
-	'#ffffb3',  # R Color Brewer - Set 3 (Name)
+    
+    '#8dd3c7' , # R Color Brewer - Set 3 (Pastel)
+    '#fb8072',  # R Color Brewer - Set 3 (Pastel)
+    '#bebada',  # R Color Brewer - Set 3 (Pastel)
+    '#984ea3',  # R Color Brewer - Set 3 (Pastel)
+    '#fdb462',  # R Color Brewer - Set 3 (Pastel)
+    '#b3de69',  # R Color Brewer - Set 3 (Pastel)
+    '#80b1d3',  # R Color Brewer - Set 3 (Pastel)
+    '#bc80bd',  # R Color Brewer - Set 3 (Pastel)
+    '#fccde5',  # R Color Brewer - Set 3 (Pastel)
+	'#ffffb3',  # R Color Brewer - Set 3 (Pastel)
+
+
+	#'#440154FF', # viridis 1
+	#'#39568CFF', # viridis 2
+	#'#1F968BFF', # viridis 3
+	#'#73D055FF', # viridis 4
+	#'#481567FF', # viridis 5
+	#'#33638DFF', # viridis 6
+	#'#20A387FF', # viridis 7
+	#'#95D840FF', # viridis 8
+	#'#482677FF', # viridis 9
+	#'#2D708EFF', # viridis 10
+	#'#29AF7FFF', # viridis 11
+	#'#B8DE29FF', # viridis 12
+	#'#453781FF', # viridis 13
+	#'#287D8EFF', # viridis 14
+	#'#3CBB75FF', # viridis 15
+	#'#DCE319FF', # viridis 16
+	#'#404788FF', # viridis 17
+	#'#238A8DFF', # viridis 18
+	#'#55C667FF', # viridis 19
+	#'#FDE725FF', # viridis 20
 	]
 
 from collections import defaultdict
