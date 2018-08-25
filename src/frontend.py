@@ -67,7 +67,11 @@ GRAPHTYPE_CHOICES = [
 
 TABLEINFO_CHOICES = [
 	'N','Mean ± Std Dev', 'Standard Error',
+<<<<<<< HEAD
 	'Median', 'Mode', 'Range','Maximum','Minimum',
+=======
+	'Median', 'Mode', 'Range','Maximum','Minimum', 
+>>>>>>> robert
 	'Skewness', 'Kurtosis'
 	]
 
@@ -764,13 +768,22 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
+<<<<<<< HEAD
 		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15, family = "Arial"), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15, family = "Arial"), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+=======
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='gray'),
+		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='gray'),
+>>>>>>> robert
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
 		height=400,
+<<<<<<< HEAD
 		titlefont=dict(size=14, family = "Arial"),
+=======
+		titlefont=dict(size=14),
+>>>>>>> robert
 		)
 	if rangeToZeroBoolean:
 		layout['xaxis']['rangemode'] = 'tozero'
