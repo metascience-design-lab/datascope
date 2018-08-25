@@ -1,6 +1,7 @@
 """
 This file defines the appearance and functionality of the web app. It
 has three main parts:
+
 (1) imports from other modules
 (2) defines and parses parameters (CAPITALIZED) that represent
 	the 'static' aspects of the web page
@@ -47,7 +48,7 @@ import numpy as np
 import scipy.stats as scipyStats
 
 CSS_URL = 'https://codepen.io/chriddyp/pen/bWLwgP.css'
-WEBAPP_TITLE = 'StatScope' # title of the webpages' tab
+WEBAPP_TITLE = 'statscope' # title of the webpages' tab
 
 # unique string IDs for UI elements
 GRAPH_ID = 'graph'
@@ -59,7 +60,7 @@ GRAPHTYPE_CHOICES = [
 	'Histogram', # leftmost choice
 	'Density Plot',
 	'Violin Plot',
-	'Table',
+	'Table', # central choice
 	'Box Plot',
 	'Bar Plot',
 	'Dot Plot', # rightmost choice
@@ -764,8 +765,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='gray'),
-		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.5, tickcolor='gray'),
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
@@ -1081,7 +1082,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 		layout['yaxis']['showgrid'] = True
-		layout['yaxis']['gridwidth'] = 1.25
+		layout['yaxis']['gridwidth'] = 1.0
+		layout['yaxis']['gridcolor'] = '#e6eaf2'
+
 
 
 	elif graphType == 'Bar Plot':
