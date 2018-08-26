@@ -79,7 +79,7 @@ BOXPLOTINFO_CHOICES = [
 	]
 
 BARDOTPLOTERROR_CHOICES = [
-	"± 95% Confidence Interval",
+	"95% Confidence Interval",
 	"± 2*Std Dev",
 	"± Std Dev",
 	"± Standard Error",
@@ -1027,9 +1027,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	elif errorBarType == "± 2*Std Dev":
 		def getError(values):
 			return 2*np.std(values)
-	elif errorBarType == "± 95% Confidence Interval":
+	elif errorBarType == "95% Confidence Interval":
 		def getError(values):
-			print(scipyStats.t.interval(0.95, len(values)-1, loc=np.mean(values), scale=scipyStats.sem(values)), file=sys.stderr) #TEMP
 			return scipyStats.t.interval(0.95, len(values)-1, loc=np.mean(values), scale=scipyStats.sem(values))
 
 	if graphType == 'Dot Plot':
@@ -1055,8 +1054,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				error_x=dict(
 				    thickness = 4.0,
 					type='data',
-					symmetric=(errorBarType != "± 95% Confidence Interval"),
-					array=list(getError(values)) if errorBarType == "± 95% Confidence Interval" else [getError(values)],
+					symmetric=(errorBarType != "95% Confidence Interval"),
+					array=list(getError(values)) if errorBarType == "95% Confidence Interval" else [getError(values)],
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
 					),
 				# width=0.01,
@@ -1111,8 +1110,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					),
 				error_x=dict(
 					type='data',
-					symmetric=(errorBarType != "± 95% Confidence Interval"),
-					array=list(getError(values)) if errorBarType == "± 95% Confidence Interval" else [getError(values)],
+					symmetric=(errorBarType != "95% Confidence Interval"),
+					array=[getError(values)[1]] if errorBarType == "95% Confidence Interval" else [getError(values)],
+					arrayminus=[getError(values)[0]] if errorBarType == "95% Confidence Interval" else [None],
 					),
 				orientation='h',
 				)
