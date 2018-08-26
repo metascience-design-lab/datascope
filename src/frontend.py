@@ -1015,6 +1015,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	if tuningSliderValue < 0 or tuningSliderValue >= len(BARDOTPLOTERROR_CHOICES):
 		tuningSliderValue = 0
+	tuningSliderValue = int(tuningSliderValue)
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-tuningSliderValue]
 
 	if errorBarType == "± Standard Error":
