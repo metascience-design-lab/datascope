@@ -995,7 +995,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				opacity=0.6,
 				notched=isToggledOn(boxPlotNotch),
 				boxpoints="outliers" if isToggledOn(boxPlotOutliers) else False,
-				boxmean="sd" if isToggledOn(boxPlotMean) else False,
+				boxmean=isToggledOn(boxPlotMean),
 				)
 			for tName,values in zip(traceNames,traceValues)
 			]
