@@ -67,20 +67,21 @@ GRAPHTYPE_CHOICES = [
 	]
 
 TABLEINFO_CHOICES = [
-	'N','Mean ± Std Dev', 'Standard Error',
-	'Median', 'Mode', 'Range','Maximum','Minimum', 
-	'Skewness', 'Kurtosis'
+	"Basic Parametric",
+	"Complete Parametric",
+	"Basic Nonparametric",
+	"Complete Nonparametric",
 	]
 
 BOXPLOTINFO_CHOICES = [
-	'Mean ± Std Dev',
+	'Mean',
 	'Outliers',
 	'Notches',
 	]
 
 BARDOTPLOTERROR_CHOICES = [
 	"± 95% Confidence Interval",
-	"± Std Dev",
+	"± Standard Deviation",
 	"± Standard Error",
 	]
 
@@ -165,8 +166,7 @@ INITIAL_LAYOUT = html.Div(children=[
 				id='graphTypeIndicator',
 				children="Density Plot",
 				),
-			] + [ html.Button(id="tableToggles-"+e, n_clicks=0) for e in TABLEINFO_CHOICES ]
-			+ [ html.Button(id="boxPlotToggles-"+e, n_clicks=(1 if e in ('Notches','Mean ± Std Dev') else 0)) for e in BOXPLOTINFO_CHOICES ]
+			] + [ html.Button(id="boxPlotToggles-"+e, n_clicks=(1 if e in ('Notches','Mean') else 0)) for e in BOXPLOTINFO_CHOICES ]
 		),
 	html.Div(
 		id='graph_container_container',
@@ -397,7 +397,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/55583c081bfbe5ebd09003f2b9989e008470d1f9/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/be48e78925a39d9a4d5674e92685fb1c0086b589/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -537,8 +537,8 @@ def updateDataGroupFieldSelector(fileContents:str, filename:str):
 		placeholder='',
 		)]
 
-def isToggledOn(tableToggle_nClicks:int):
-	return (tableToggle_nClicks % 2 == 0)
+def isToggledOn(nClicks:int):
+	return (nClicks % 2 == 0)
 
 def guessBandwidth(values):
 	# adapted from https://github.com/plotly/plotly.js/blob/1a050e85c2b901b2579af0a5e09df00197271ca9/src/traces/violin/calc.js#L74-L81
@@ -556,11 +556,10 @@ def guessBandwidth(values):
 	 Input(DATATYPEDROPDOWN_ID, 'value'),
 	 Input('dataGroupFieldSelector', 'value'),
 	 Input("uploaded_fileAsJson", "children")]
-	+ [ Input("tableToggles-"+e, "n_clicks") for e in TABLEINFO_CHOICES ]
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
 	[State("graphTuning_slider", "value")],
 	)
-def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, dataGroupField:str, csvAsJson:str, tableN, tableMean, tableError, tableMedian, tableMode, tableRange, tableMax, tableMin, tableSkewness, tableKurtosis, boxPlotMean, boxPlotOutliers, boxPlotNotch, currentSliderValue):
+def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, dataGroupField:str, csvAsJson:str, boxPlotMean, boxPlotOutliers, boxPlotNotch, currentSliderValue):
 
 	graphType = GRAPHTYPE_CHOICES[graphTypeIndex]
 
@@ -643,25 +642,13 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 
 	elif graphType == "Table":
 
-		tableToggle_nClickArray = (tableN, tableMean, tableError, tableMedian, tableMode, tableRange, tableMax, tableMin, tableSkewness, tableKurtosis)
-
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
 				min=0,
-				max=len(TABLEINFO_CHOICES)-1,
-				value=currentSliderValue,
-				marks={
-					len(TABLEINFO_CHOICES)-1-i: {
-						"label": e,
-						"style": {
-							"whiteSpace": "nowrap",
-							"overflow": "visible",
-							"color": "#666" if isToggledOn(tableToggle_nClickArray[i]) else "lightgray",
-							},
-						}
-					for i,e in enumerate(TABLEINFO_CHOICES)
-					},
+				max=3,
+				value=0,
+				marks={i:{"label":e, "style":{"transform":"translate(0,10px)"}} for i,e in enumerate(TABLEINFO_CHOICES)},
 				step=None,
 				included=False,
 				vertical=True,
@@ -784,10 +771,9 @@ from collections import defaultdict
 	 Input("graphTuning_slider", "value"),
 	 Input("rangeToZeroIndicator", "children"),
 	 Input("showDataIndicator", "children")]
-	+ [ Input("tableToggles-"+e, "n_clicks") for e in TABLEINFO_CHOICES ]
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
 	)
-def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, tableN, tableMean, tableError, tableMedian, tableMode, tableRange, tableMax, tableMin, tableSkewness, tableKurtosis, boxPlotMean, boxPlotOutliers, boxPlotNotch):
+def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, boxPlotMean, boxPlotOutliers, boxPlotNotch):
 	"""
 	updates the graph based on the chosen data fields, data filters,
 	and graph type
@@ -965,48 +951,60 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	elif graphType == 'Table':
 
-		tableToggle_nClickArray = (tableN, tableMean, tableError, tableMedian, tableMode, tableRange, tableMax, tableMin, tableSkewness, tableKurtosis)
-
-		categories = [ [ e for i,e in enumerate(TABLEINFO_CHOICES) if isToggledOn(tableToggle_nClickArray[i]) ] ]
+		if tuningSliderValue >= len(TABLEINFO_CHOICES) or tuningSliderValue < 0:
+			tuningSliderValue = 0
+		tableType = TABLEINFO_CHOICES[int(tuningSliderValue)]
 
 		tableHeaders = ['']
 		tableHolder = []
 		tableNumber = []
 		tableAverage = []
+		tableStd = []
 		tableError = []
 		tableMedian = []
 		tableMode = []
 		tableRange = []
 		tableMinimum = []
+		tableTrimean = []
 		tableMaximum = []
 		tableSkew = []
 		tableKurtosis = []
+
+		if tableType == "Basic Parametric":
+			categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Maximum"]]
+			thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableMaximum]
+		elif tableType == "Complete Parametric":
+			categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+			thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
+		elif tableType == "Basic Nonparametric":
+			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Maximum"]]
+			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMaximum]
+		elif tableType == "Complete Nonparametric":
+			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
 
 		for name in traceNames:
 			tableHeaders.append(name)
 
 		for row in traceValues:
 			tableNumber.append(len(row))
-			tableAverage.append(str(round(sum(row)/len(row),3)) + ' ± ' +
-							str(round(np.std(row)/np.sqrt(len(row)),1)))
-			tableError.append(round(scipyStats.sem(row),3))
-			tableMedian.append(str(round(np.median(row),3)))
-			m = scipyStats.mode(row)
-			tableMode.append(str(m[0][0]))
+			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
+			tableAverage.append(round(sum(row)/len(row),1))
+			tableStd.append(round(np.std(row)/np.sqrt(len(row)),1))
+			tableError.append(round(scipyStats.sem(row),1))
+			tableMedian.append(round(np.median(row),1))
+			tableMode.append(scipyStats.mode(row)[0][0])
 			tableMinimum.append(min(row))
 			tableMaximum.append(max(row))
-			tableRange.append(round(max(row)-min(row),3))
-			tableSkew.append(round(scipyStats.skew(row),3))
-			tableKurtosis.append(round(scipyStats.kurtosis(row),3))
-
-		thingsToZip = []
-		for i,e in enumerate((tableNumber, tableAverage, tableError, tableMedian, tableMode, tableRange, tableMaximum, tableMinimum, tableSkew, tableKurtosis)):
-			if isToggledOn(tableToggle_nClickArray[i]):
-				thingsToZip.append(e)
+			tableRange.append(round(max(row)-min(row),1))
+			tableSkew.append(round(scipyStats.skew(row),1))
+			tableKurtosis.append(round(scipyStats.kurtosis(row),1))
 
 		tableHolder.append(list(map(list, zip(*thingsToZip))))
 		for e in tableHolder[0]:
 			categories.append(e)
+
+		print(categories, tableHeaders, file=sys.stderr)
 
 		traces = [
 			go.Table(
@@ -1016,14 +1014,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 							 align = ['left','right'])
 				)
 		]
-
-		# traces = [go.Table(
-		# 	header = dict(
-		# 		values=['<b>'+tName+'</b>' for tName in traceNames],
-		# 		fill=dict(color='rgba(0,0,0,0)'),
-		# 		line=dict(color='rgba(0,0,0,0)'),
-		# 		),
-		# 	)]
 
 		if not showDataBoolean:
 			traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
@@ -1059,13 +1049,12 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	if tuningSliderValue < 0 or tuningSliderValue >= len(BARDOTPLOTERROR_CHOICES):
 		tuningSliderValue = 0
-	tuningSliderValue = int(tuningSliderValue)
-	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-tuningSliderValue]
+	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-int(tuningSliderValue)]
 
 	if errorBarType == "± Standard Error":
 		def getError(values):
 			return np.std(values)/np.sqrt(len(values))
-	elif errorBarType == "± Std Dev":
+	elif errorBarType == "± Standard Deviation":
 		def getError(values):
 			return np.std(values)
 	elif errorBarType == "± 95% Confidence Interval":
