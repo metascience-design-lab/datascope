@@ -1025,7 +1025,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			return np.std(values)
 	elif errorBarType == "95% Confidence Interval":
 		def getError(values):
-			return scipyStats.t.interval(0.95, len(values)-1, loc=np.mean(values), scale=scipyStats.sem(values))
+			return 1.96*np.std(values)/np.sqrt(len(values))
 
 	if graphType == 'Dot Plot':
 
@@ -1050,8 +1050,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				error_x=dict(
 				    thickness = 4.0,
 					type='data',
-					symmetric=(errorBarType != "95% Confidence Interval"),
-					array=list(getError(values)) if errorBarType == "95% Confidence Interval" else [getError(values)],
+					array=[getError(values)],
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
 					),
 				# width=0.01,
@@ -1082,7 +1081,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['gridcolor'] = '#e6eaf2'
 
 
-
 	elif graphType == 'Bar Plot':
 
 		traces = [
@@ -1106,9 +1104,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					),
 				error_x=dict(
 					type='data',
-					symmetric=(errorBarType != "95% Confidence Interval"),
-					array=[getError(values)[1]] if errorBarType == "95% Confidence Interval" else [getError(values)],
-					arrayminus=[getError(values)[0]] if errorBarType == "95% Confidence Interval" else [None],
+					array=[getError(values)],
 					),
 				orientation='h',
 				)
