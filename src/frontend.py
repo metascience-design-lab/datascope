@@ -541,6 +541,7 @@ def isToggledOn(tableToggle_nClicks:int):
 	return (tableToggle_nClicks % 2 == 0)
 
 def guessBandwidth(values):
+	# adapted from https://github.com/plotly/plotly.js/blob/1a050e85c2b901b2579af0a5e09df00197271ca9/src/traces/violin/calc.js#L74-L81
 	return max(
 		1.059 * min(
 			np.std(values),
@@ -620,7 +621,6 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 		maxBandwidth = 0
 		for values in traceValues:
 			bandwidth = guessBandwidth(values)
-			print(bandwidth, file=sys.stderr)
 			if bandwidth > maxBandwidth:
 				maxBandwidth = bandwidth
 
