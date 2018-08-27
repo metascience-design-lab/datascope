@@ -1004,8 +1004,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for e in tableHolder[0]:
 			categories.append(e)
 
-		print(categories, tableHeaders, file=sys.stderr)
-
 		traces = [
 			go.Table(
 				header = dict(values = (tableHeaders),
