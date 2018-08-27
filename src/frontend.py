@@ -80,7 +80,6 @@ BOXPLOTINFO_CHOICES = [
 
 BARDOTPLOTERROR_CHOICES = [
 	"± 95% Confidence Interval",
-	"± 2*Std Dev",
 	"± Std Dev",
 	"± Standard Error",
 	]
@@ -553,7 +552,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 	if graphType == "Histogram":
 
 		marks = {i:str(i) for i in range(5,55,5)}
-		marks[1] = {"label":"1", "style":noWrapStyle}
+		marks[1] = {"label":"Bin Size: 1", "style":noWrapStyle}
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
@@ -574,6 +573,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 				id="graphTuning_slider",
 				min=0,
 				max=1,
+				#TODO replace with kde bandwitch slider
 				marks={0: {"label":"KDE", "style":noWrapStyle}, 1: "Normal"},
 				value=0,
 				step=None,
@@ -584,12 +584,15 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 
 	elif graphType == "Violin Plot":
 
+		marks = {i:str(i) for i in (5, 10, 15)}
+		marks[0] = {"label":"Bandwidth: Auto", "style":noWrapStyle}
+
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
 				min=0,
 				max=15,
-				marks={i:str(i) for i in (0, 5, 10, 15)},
+				marks=marks,
 				value=0,
 				step=0.01,
 				vertical=True,
@@ -613,7 +616,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 						"style": {
 							"whiteSpace": "nowrap",
 							"overflow": "visible",
-							"color": "#666" if isToggledOn(tableToggle_nClickArray[i]) else "#999",
+							"color": "#666" if isToggledOn(tableToggle_nClickArray[i]) else "lightgray",
 							},
 						}
 					for i,e in enumerate(TABLEINFO_CHOICES)
@@ -640,7 +643,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 						"style": {
 							"whiteSpace": "nowrap",
 							"overflow": "visible",
-							"color": "#666" if isToggledOn(boxPlotToggle_nClickArray[i]) else "#999",
+							"color": "#666" if isToggledOn(boxPlotToggle_nClickArray[i]) else "lightgray",
 							},
 						}
 					for i,e in enumerate(BOXPLOTINFO_CHOICES)
@@ -1019,7 +1022,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				opacity=0.6,
 				notched=isToggledOn(boxPlotNotch),
 				boxpoints="outliers" if isToggledOn(boxPlotOutliers) else False,
-				boxmean="sd" if isToggledOn(boxPlotMean) else False,
+				boxmean=isToggledOn(boxPlotMean),
 				)
 			for tName,values in zip(traceNames,traceValues)
 			]
@@ -1039,6 +1042,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	if tuningSliderValue < 0 or tuningSliderValue >= len(BARDOTPLOTERROR_CHOICES):
 		tuningSliderValue = 0
+	tuningSliderValue = int(tuningSliderValue)
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-tuningSliderValue]
 
 	if errorBarType == "± Standard Error":
@@ -1047,13 +1051,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	elif errorBarType == "± Std Dev":
 		def getError(values):
 			return np.std(values)
-	elif errorBarType == "± 2*Std Dev":
-		def getError(values):
-			return 2*np.std(values)
 	elif errorBarType == "± 95% Confidence Interval":
 		def getError(values):
-			print(scipyStats.t.interval(0.95, len(values)-1, loc=np.mean(values), scale=scipyStats.sem(values)), file=sys.stderr) #TEMP
-			return scipyStats.t.interval(0.95, len(values)-1, loc=np.mean(values), scale=scipyStats.sem(values))
+			return 1.96*np.std(values)/np.sqrt(len(values))
 
 	if graphType == 'Dot Plot':
 
@@ -1078,8 +1078,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				error_x=dict(
 				    thickness = 4.0,
 					type='data',
-					symmetric=(errorBarType != "± 95% Confidence Interval"),
-					array=list(getError(values)) if errorBarType == "± 95% Confidence Interval" else [getError(values)],
+					array=[getError(values)],
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
 					),
 				# width=0.01,
@@ -1110,7 +1109,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['gridcolor'] = '#e6eaf2'
 
 
-
 	elif graphType == 'Bar Plot':
 
 		traces = [
@@ -1134,8 +1132,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					),
 				error_x=dict(
 					type='data',
-					symmetric=(errorBarType != "± 95% Confidence Interval"),
-					array=list(getError(values)) if errorBarType == "± 95% Confidence Interval" else [getError(values)],
+					array=[getError(values)],
 					),
 				orientation='h',
 				)
