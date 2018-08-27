@@ -552,7 +552,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 	if graphType == "Histogram":
 
 		marks = {i:str(i) for i in range(5,55,5)}
-		marks[1] = {"label":"1", "style":noWrapStyle}
+		marks[1] = {"label":"Bin Size: 1", "style":noWrapStyle}
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
@@ -573,6 +573,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 				id="graphTuning_slider",
 				min=0,
 				max=1,
+				#TODO replace with kde bandwitch slider
 				marks={0: {"label":"KDE", "style":noWrapStyle}, 1: "Normal"},
 				value=0,
 				step=None,
@@ -583,12 +584,15 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 
 	elif graphType == "Violin Plot":
 
+		marks = {i:str(i) for i in (5, 10, 15)}
+		marks[0] = {"label":"Bandwidth: Auto", "style":noWrapStyle}
+
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
 				min=0,
 				max=15,
-				marks={i:str(i) for i in (0, 5, 10, 15)},
+				marks=marks,
 				value=0,
 				step=0.01,
 				vertical=True,
