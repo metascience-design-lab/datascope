@@ -612,7 +612,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 						"style": {
 							"whiteSpace": "nowrap",
 							"overflow": "visible",
-							"color": "#666" if isToggledOn(tableToggle_nClickArray[i]) else "#999",
+							"color": "#666" if isToggledOn(tableToggle_nClickArray[i]) else "lightgray",
 							},
 						}
 					for i,e in enumerate(TABLEINFO_CHOICES)
