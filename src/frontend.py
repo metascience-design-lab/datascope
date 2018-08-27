@@ -80,7 +80,6 @@ BOXPLOTINFO_CHOICES = [
 
 BARDOTPLOTERROR_CHOICES = [
 	"95% Confidence Interval",
-	"± 2*Std Dev",
 	"± Std Dev",
 	"± Standard Error",
 	]
@@ -1024,9 +1023,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	elif errorBarType == "± Std Dev":
 		def getError(values):
 			return np.std(values)
-	elif errorBarType == "± 2*Std Dev":
-		def getError(values):
-			return 2*np.std(values)
 	elif errorBarType == "95% Confidence Interval":
 		def getError(values):
 			return scipyStats.t.interval(0.95, len(values)-1, loc=np.mean(values), scale=scipyStats.sem(values))
