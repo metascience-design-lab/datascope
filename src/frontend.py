@@ -84,6 +84,9 @@ BARDOTPLOTERROR_CHOICES = [
 	"± Standard Error",
 	]
 
+MIN_BINSIZE = 1
+MAX_BINSIZE = 20 # http://www.statisticshowto.com/choose-bin-sizes-statistics/
+
 # DRAWCONTROL_CHOICES = [
 # 	'Submit', # bottom choice
 # 	'Reset',
@@ -537,13 +540,26 @@ def updateDataGroupFieldSelector(fileContents:str, filename:str):
 def isToggledOn(tableToggle_nClicks:int):
 	return (tableToggle_nClicks % 2 == 0)
 
+def guessBandwidth(values):
+	return max(
+		1.059 * min(
+			np.std(values),
+			(np.percentile(values,75)-np.percentile(values,25)) / 1.349
+			)
+		* len(values)**-0.2, (max(values)-min(values))/100
+		)
+
 @app.callback(
 	Output("graphTuning_slider_container", "children"),
-	[Input(GRAPHTYPESLIDER_ID, "value")] + [ Input("tableToggles-"+e, "n_clicks") for e in TABLEINFO_CHOICES ]
+	[Input(GRAPHTYPESLIDER_ID, "value"),
+	 Input(DATATYPEDROPDOWN_ID, 'value'),
+	 Input('dataGroupFieldSelector', 'value'),
+	 Input("uploaded_fileAsJson", "children")]
+	+ [ Input("tableToggles-"+e, "n_clicks") for e in TABLEINFO_CHOICES ]
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
 	[State("graphTuning_slider", "value")],
 	)
-def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tableError, tableMedian, tableMode, tableRange, tableMax, tableMin, tableSkewness, tableKurtosis, boxPlotMean, boxPlotOutliers, boxPlotNotch, currentSliderValue):
+def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, dataGroupField:str, csvAsJson:str, tableN, tableMean, tableError, tableMedian, tableMode, tableRange, tableMax, tableMin, tableSkewness, tableKurtosis, boxPlotMean, boxPlotOutliers, boxPlotNotch, currentSliderValue):
 
 	graphType = GRAPHTYPE_CHOICES[graphTypeIndex]
 
@@ -551,15 +567,15 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 
 	if graphType == "Histogram":
 
-		marks = {i:str(i) for i in range(5,55,5)}
-		marks[1] = {"label":"Bin Size: 1", "style":noWrapStyle}
+		marks = {i:str(i) for i in range(MIN_BINSIZE+4,MAX_BINSIZE+5,5)}
+		marks[MIN_BINSIZE] = {"label":"Bin Size: "+str(MIN_BINSIZE), "style":noWrapStyle}
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
-				min=1,
-				max=50,
+				min=MIN_BINSIZE,
+				max=MAX_BINSIZE,
 				marks=marks,
-				value=1,
+				value=MIN_BINSIZE,
 				step=1,
 				vertical=True,
 				included=False,
@@ -584,17 +600,42 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, tableN, tableMean, tabl
 
 	elif graphType == "Violin Plot":
 
-		marks = {i:str(i) for i in (5, 10, 15)}
+		dataSetFromJson = json.loads(csvAsJson)
+
+		if dataGroupField == '':
+			groupedDataSets = {'': dataSetFromJson}
+		else:
+			groupedDataSets = defaultdict(list)
+			for dataDict in dataSetFromJson:
+				groupedDataSets[" ({})".format(str(dataDict[dataGroupField]))].append(dataDict)
+
+		# convert the data being plotted into numbers
+		traceValues = []
+		for fieldName in chosenDataFields:
+			for groupName in groupedDataSets:
+				traceValues.append([])
+				for dataDict in groupedDataSets[groupName]:
+					traceValues[-1].append(float(dataDict[fieldName]))
+
+		maxBandwidth = 0
+		for values in traceValues:
+			bandwidth = guessBandwidth(values)
+			print(bandwidth, file=sys.stderr)
+			if bandwidth > maxBandwidth:
+				maxBandwidth = bandwidth
+
+		markStep = 5 if maxBandwidth > 10 else 1
+		marks = {i:str(i) for i in range(0, int(2*maxBandwidth)+markStep, markStep)}
 		marks[0] = {"label":"Bandwidth: Auto", "style":noWrapStyle}
 
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
 				min=0,
-				max=15,
+				max=int(2*maxBandwidth),
 				marks=marks,
 				value=0,
-				step=0.01,
+				step=0.00001,
 				vertical=True,
 				included=False,
 				),
@@ -831,7 +872,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			binSize = tuningSliderValue
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
-				show_curve=False, show_rug=False, bin_size=binSize if binSize>0 and binSize<=50 else 1,
+				show_curve=False, show_rug=False, bin_size=binSize if binSize>=MIN_BINSIZE and binSize<=MAX_BINSIZE else 1,
 				)
 		except Exception as e:
 			layout['title'] = "Error: " + str(e)
