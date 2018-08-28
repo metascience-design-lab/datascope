@@ -505,7 +505,7 @@ def updateDataFieldSelector(fileContents:str, filename:str):
 			list(csv.reader(io.StringIO(base64.b64decode(fileContents.split(',')[1]).decode("utf-8"))))[0]
 			],
 		multi=True,
-		value=["rktProcedural"] if filename=="ind-diff-regression.csv" else [],
+		value=["rktProcedural", "rktConceptual"] if filename=="ind-diff-regression.csv" else [],
 		placeholder='',
 		)]
 
@@ -926,6 +926,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			layout['xaxis']['title'] = str(traceNames)[1:-1].replace("'","")
 		layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
+		layout['yaxis']['ticks'] = ''
 		#TODO add back density label as an absolutely positioned div similar to drawingInstructions
 		layout['yaxis']['title'] = ''
 		ridgeLayout = ridgelineFigure['layout']
@@ -936,7 +937,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		del layout['xaxis']
 		del layout['yaxis']
 		ridgeLayout.update(layout)
-		# print(ridgelineFigure['layout'], file=sys.stderr) #TEMP
 		return [
 			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
 			]
