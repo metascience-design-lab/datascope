@@ -42,6 +42,7 @@ import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
 import grasia_dash_components as gdc #==0.3.0
+from plotly import tools as plotlyTools
 from dash.dependencies import Input, Output, State
 import json
 import numpy as np
@@ -698,6 +699,8 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 				),
 			]
 
+from collections import Mapping
+
 @app.callback(
 	Output("drawingInstructions", "children"),
 	[Input(DATATYPEDROPDOWN_ID, 'value'),
@@ -885,30 +888,19 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
-				del traceValues[i]
+				del traceValues[i] # can't plot the density of a single variable without errors
 
+		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
+			tuningSliderValue = 0
 		try:
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
-				show_hist=False, show_rug=False, curve_type=DENSITY_CURVE_TYPES[tuningSliderValue],
+				show_hist=False, show_rug=False, curve_type=DENSITY_CURVE_TYPES[int(tuningSliderValue)],
 				)
 		except Exception as e:
-			eMessage = str(e)
-			if eMessage == "list index out of range" or len(eMessage)>=39 and eMessage[:39] == "list indices must be integers or slices":
-				graphFigure = ff.create_distplot(
-					traceValues, traceNames,
-					show_hist=False, show_rug=False, curve_type='kde',
-					)
-			else:
-				layout['title'] = "Error: " + str(e)
-				return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
+			layout['title'] = "Error: " + str(e) # show error message in graph title
+			return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
-		for key,value in layout.items():
-			graphFigure.layout[key] = value
-		graphFigure.layout.yaxis.title = "density"
-		if not showDataBoolean:
-			graphFigure.layout.xaxis.title = str(traceNames)[1:-1].replace("'","")
-		graphFigure.layout.showlegend = True
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
 				trace['fill'] = 'tozeroy'
@@ -917,8 +909,36 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
 				trace['fillcolor'] = 'rgba(0,0,0,0)'
+		
+		ridgelineFigure = plotlyTools.make_subplots(
+			rows=len(traceValues),
+			cols=1,
+			specs=[[{}] for i in range(len(traceValues))],
+			shared_xaxes=True, 
+			shared_yaxes=True,
+			vertical_spacing=0,
+			)
+		for i,trace in enumerate(graphFigure.data):
+			ridgelineFigure.append_trace(trace, i+1, 1)
+
+		layout['showlegend'] = True
+		if not showDataBoolean:
+			layout['xaxis']['title'] = str(traceNames)[1:-1].replace("'","")
+		layout['yaxis']['hoverformat'] = '.3f'
+		layout['yaxis']['showticklabels'] = False
+		#TODO add back density label as an absolutely positioned div similar to drawingInstructions
+		layout['yaxis']['title'] = ''
+		ridgeLayout = ridgelineFigure['layout']
+		for key,value in ridgeLayout.items():
+			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
+				for k,v in layout[key[:5]].items():
+					value[k] = v
+		del layout['xaxis']
+		del layout['yaxis']
+		ridgeLayout.update(layout)
+		# print(ridgelineFigure['layout'], file=sys.stderr) #TEMP
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
+			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
 			]
 
 	if graphType == 'Violin Plot':
@@ -951,7 +971,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	elif graphType == 'Table':
 
-		if tuningSliderValue >= len(TABLEINFO_CHOICES) or tuningSliderValue < 0:
+		if tuningSliderValue is None or tuningSliderValue >= len(TABLEINFO_CHOICES) or tuningSliderValue < 0:
 			tuningSliderValue = 0
 		tableType = TABLEINFO_CHOICES[int(tuningSliderValue)]
 
@@ -1045,7 +1065,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ''
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 
-	if tuningSliderValue < 0 or tuningSliderValue >= len(BARDOTPLOTERROR_CHOICES):
+	if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(BARDOTPLOTERROR_CHOICES):
 		tuningSliderValue = 0
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-int(tuningSliderValue)]
 
