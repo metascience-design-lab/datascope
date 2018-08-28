@@ -735,6 +735,8 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				instructions += " and"
 		if dataGroupField != '':
 			instructions += " (grouped by {})".format(dataGroupField)
+		if graphTypeName == "Density Plot":
+			instructions += ", stacked from bottom to top"
 		instructions += '. Double-click it to submit.'
 	return [instructions]
 
@@ -886,10 +888,11 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	if graphType == 'Density Plot':
 
+
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single variable without errors
-
+		
 		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
 			tuningSliderValue = 0
 		try:
@@ -918,7 +921,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			shared_yaxes=True,
 			vertical_spacing=0,
 			)
-		for i,trace in enumerate(graphFigure.data):
+		for i,trace in enumerate(reversed(graphFigure.data)):
 			ridgelineFigure.append_trace(trace, i+1, 1)
 
 		layout['showlegend'] = True
