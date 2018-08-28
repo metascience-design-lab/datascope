@@ -59,11 +59,15 @@
 
 		const isWithinPlotBorder = (e) => {
 			try {
-				const borderRect = document.getElementById("graph").querySelector(".nsewdrag").getBoundingClientRect();
-				return (
-					e.clientX >= borderRect.x && e.clientX <= borderRect.x+borderRect.width
-					&& e.clientY >= borderRect.y && e.clientY <= borderRect.y+borderRect.height
-					);
+				const panes = document.getElementById("graph").querySelectorAll(".nsewdrag");
+				for (let i=0; i<panes.length; i++) {
+					const borderRect = panes[i].getBoundingClientRect();
+					if (e.clientX >= borderRect.x && e.clientX <= borderRect.x+borderRect.width
+					&& e.clientY >= borderRect.y && e.clientY <= borderRect.y+borderRect.height) {
+						return true;
+					}
+				}
+				return false;
 			} catch (err) {
 				return false;
 			}
