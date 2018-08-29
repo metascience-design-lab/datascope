@@ -928,13 +928,25 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
 		layout['yaxis']['ticks'] = ''
+		layout['yaxis']['title'] = ''
 		ridgeLayout = ridgelineFigure['layout']
 		for key,value in ridgeLayout.items():
 			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
 				for k,v in layout[key[:5]].items():
 					value[k] = v
-				if key[:5] == "yaxis":
-					value['title'] = traceNames[len(traceNames)-int(key[5:])-2] #TODO reverse traceNames first?
+		layout['annotations'] = [
+			dict(
+				xref='paper',
+				xanchor='right',
+				x=-0.01,
+				yref='y'+(str(i+1) if (i > 0) else ''),
+				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']),
+				text=traceNames[len(traceNames)-i-1],
+				font=dict(size=14, family='Arial'),
+				showarrow=False,
+				)
+			for i in range(len(traceNames))
+			]
 		# print(ridgeLayout, file=sys.stderr) #TEMP
 		del layout['xaxis']
 		del layout['yaxis']
