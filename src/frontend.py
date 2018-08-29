@@ -855,24 +855,19 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
-				del traceValues[i]
-
+				del traceValues[i] # can't plot the density of a single variable without errors
+		
+		if tuningSliderValue is None or tuningSliderValue < MIN_BINSIZE or tuningSliderValue > MAX_BINSIZE:
+			tuningSliderValue = 1
 		try:
-			binSize = tuningSliderValue
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
-				show_curve=False, show_rug=False, bin_size=binSize if binSize>=MIN_BINSIZE and binSize<=MAX_BINSIZE else 1,
+				show_curve=False, show_rug=False, bin_size=tuningSliderValue,
 				)
 		except Exception as e:
-			layout['title'] = "Error: " + str(e)
+			layout['title'] = "Error: " + str(e) # show error message in graph title
 			return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
-		for key,value in layout.items():
-			graphFigure.layout[key] = value
-		graphFigure.layout.yaxis.title = "density"
-		if not showDataBoolean:
-			graphFigure.layout.xaxis.title = str(traceNames)[1:-1].replace("'","")
-		graphFigure.layout.showlegend = True
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
 				trace['opacity'] = 0.6
@@ -880,8 +875,68 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
+		
+		ridgelineFigure = plotlyTools.make_subplots(
+			rows=len(traceValues),
+			cols=1,
+			specs=[[{}] for i in range(len(traceValues))],
+			shared_xaxes=True, 
+			shared_yaxes=True,
+			vertical_spacing=0,
+			)
+		for i,trace in enumerate(reversed(graphFigure.data)):
+			ridgelineFigure.append_trace(trace, i+1, 1)
+
+		# for name,values in zip(reversed(traceNames), reversed(traceValues)): #TEMP
+		# 	print(name, np.histogram(values, bins=tuningSliderValue, density=True), file=sys.stderr) #TEMP
+
+		#TODO fix drawing instructions
+		# layout['showlegend'] = True
+		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+		layout['yaxis']['hoverformat'] = '.3f'
+		layout['yaxis']['showticklabels'] = False
+		layout['yaxis']['ticks'] = ''
+		layout['yaxis']['title'] = ''
+		ridgeLayout = ridgelineFigure['layout']
+		for key,value in ridgeLayout.items():
+			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
+				for k,v in layout[key[:5]].items():
+					value[k] = v
+		# from pprint import pprint #TEMP
+		# pprint(graphFigure['data'], sys.stderr) #TEMP
+		_annotations = []
+		for i in range(len(traceNames)):
+			_histoMax = np.histogram(traceValues[len(traceValues)-i-1], bins=tuningSliderValue, density=True)[0][0]
+			_annotations.append(dict(
+				xref='paper',
+				xanchor='right',
+				x=-0.01,
+				yref='y'+(str(i+1) if (i > 0) else ''),
+				y=0.6*_histoMax*10/tuningSliderValue,
+				text=traceNames[len(traceNames)-i-1],
+				font=dict(size=14, family='Arial'),
+				showarrow=False,
+				))
+		# layout['annotations'] = [
+		# 	dict(
+		# 		xref='paper',
+		# 		xanchor='right',
+		# 		x=-0.01,
+		# 		yref='y'+(str(i+1) if (i > 0) else ''),
+		# 		y=0.5*np.histogram(traceValues[len(traceValues)-i-1], bins=tuningSliderValue, density=True)[0][0],
+		# 		text=traceNames[len(traceNames)-i-1],
+		# 		font=dict(size=14, family='Arial'),
+		# 		showarrow=False,
+		# 		)
+		# 	for i in range(len(traceNames))
+		# 	]
+		layout['annotations'] = _annotations
+		# print(ridgeLayout, file=sys.stderr) #TEMP
+		del layout['xaxis']
+		del layout['yaxis']
+		ridgeLayout.update(layout)
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
+			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
 			]
 
 	# if graphType == 'Density Plot':
