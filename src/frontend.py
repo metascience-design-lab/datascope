@@ -735,8 +735,6 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				instructions += " and"
 		if dataGroupField != '':
 			instructions += " (grouped by {})".format(dataGroupField)
-		if graphTypeName == "Density Plot":
-			instructions += ", stacked from bottom to top"
 		instructions += '. Double-click it to submit.'
 	return [instructions]
 
@@ -924,19 +922,20 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for i,trace in enumerate(reversed(graphFigure.data)):
 			ridgelineFigure.append_trace(trace, i+1, 1)
 
-		layout['showlegend'] = True
-		if not showDataBoolean:
-			layout['xaxis']['title'] = str(traceNames)[1:-1].replace("'","")
+		#TODO fix drawing instructions
+		# layout['showlegend'] = True
+		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
 		layout['yaxis']['ticks'] = ''
-		#TODO add back density label as an absolutely positioned div similar to drawingInstructions
-		layout['yaxis']['title'] = ''
 		ridgeLayout = ridgelineFigure['layout']
 		for key,value in ridgeLayout.items():
 			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
 				for k,v in layout[key[:5]].items():
 					value[k] = v
+				if key[:5] == "yaxis":
+					value['title'] = traceNames[len(traceNames)-int(key[5:])-2] #TODO reverse traceNames first?
+		print(ridgeLayout, file=sys.stderr) #TEMP
 		del layout['xaxis']
 		del layout['yaxis']
 		ridgeLayout.update(layout)
