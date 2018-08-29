@@ -935,7 +935,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					value[k] = v
 				if key[:5] == "yaxis":
 					value['title'] = traceNames[len(traceNames)-int(key[5:])-2] #TODO reverse traceNames first?
-		print(ridgeLayout, file=sys.stderr) #TEMP
+		# print(ridgeLayout, file=sys.stderr) #TEMP
 		del layout['xaxis']
 		del layout['yaxis']
 		ridgeLayout.update(layout)
