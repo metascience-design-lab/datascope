@@ -583,23 +583,23 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 				),
 			]
 
-	elif graphType == "Density Plot":
+	# elif graphType == "Density Plot":
 
-		return [
-			dcc.Slider(
-				id="graphTuning_slider",
-				min=0,
-				max=1,
-				#TODO replace with kde bandwitch slider
-				marks={0: {"label":"KDE", "style":noWrapStyle}, 1: "Normal"},
-				value=0,
-				step=None,
-				included=False,
-				vertical=True,
-				),
-			]
+	# 	return [
+	# 		dcc.Slider(
+	# 			id="graphTuning_slider",
+	# 			min=0,
+	# 			max=1,
+	# 			#TODO replace with kde bandwitch slider
+	# 			marks={0: {"label":"KDE", "style":noWrapStyle}, 1: "Normal"},
+	# 			value=0,
+	# 			step=None,
+	# 			included=False,
+	# 			vertical=True,
+	# 			),
+	# 		]
 
-	elif graphType == "Violin Plot":
+	elif graphType in ("Violin Plot", "Density Plot"):
 
 		dataSetFromJson = json.loads(csvAsJson)
 
@@ -884,78 +884,79 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
 			]
 
-	if graphType == 'Density Plot':
+	# if graphType == 'Density Plot':
 
 
-		for i,trace in enumerate(traceValues):
-			if len(trace) < 2:
-				del traceValues[i] # can't plot the density of a single variable without errors
+	# 	for i,trace in enumerate(traceValues):
+	# 		if len(trace) < 2:
+	# 			del traceValues[i] # can't plot the density of a single variable without errors
 		
-		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
-			tuningSliderValue = 0
-		try:
-			graphFigure = ff.create_distplot(
-				traceValues, traceNames,
-				show_hist=False, show_rug=False, curve_type=DENSITY_CURVE_TYPES[int(tuningSliderValue)],
-				)
-		except Exception as e:
-			layout['title'] = "Error: " + str(e) # show error message in graph title
-			return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
+	# 	if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
+	# 		tuningSliderValue = 0
+	# 	try:
+	# 		graphFigure = ff.create_distplot(
+	# 			traceValues, traceNames,
+	# 			show_hist=False, show_rug=False, curve_type=DENSITY_CURVE_TYPES[int(tuningSliderValue)],
+	# 			)
+	# 	except Exception as e:
+	# 		layout['title'] = "Error: " + str(e) # show error message in graph title
+	# 		return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
-		if showDataBoolean:
-			for i,trace in enumerate(graphFigure.data):
-				trace['fill'] = 'tozeroy'
-				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
-		else:
-			for trace in graphFigure.data:
-				trace['marker']['color'] = 'rgba(0,0,0,0)'
-				trace['fillcolor'] = 'rgba(0,0,0,0)'
+	# 	if showDataBoolean:
+	# 		for i,trace in enumerate(graphFigure.data):
+	# 			trace['fill'] = 'tozeroy'
+	# 			trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+	# 	else:
+	# 		for trace in graphFigure.data:
+	# 			trace['marker']['color'] = 'rgba(0,0,0,0)'
+	# 			trace['fillcolor'] = 'rgba(0,0,0,0)'
 		
-		ridgelineFigure = plotlyTools.make_subplots(
-			rows=len(traceValues),
-			cols=1,
-			specs=[[{}] for i in range(len(traceValues))],
-			shared_xaxes=True, 
-			shared_yaxes=True,
-			vertical_spacing=0,
-			)
-		for i,trace in enumerate(reversed(graphFigure.data)):
-			ridgelineFigure.append_trace(trace, i+1, 1)
+	# 	ridgelineFigure = plotlyTools.make_subplots(
+	# 		rows=len(traceValues),
+	# 		cols=1,
+	# 		specs=[[{}] for i in range(len(traceValues))],
+	# 		shared_xaxes=True, 
+	# 		shared_yaxes=True,
+	# 		vertical_spacing=0,
+	# 		)
+	# 	for i,trace in enumerate(reversed(graphFigure.data)):
+	# 		ridgelineFigure.append_trace(trace, i+1, 1)
 
-		#TODO fix drawing instructions
-		# layout['showlegend'] = True
-		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['hoverformat'] = '.3f'
-		layout['yaxis']['showticklabels'] = False
-		layout['yaxis']['ticks'] = ''
-		layout['yaxis']['title'] = ''
-		ridgeLayout = ridgelineFigure['layout']
-		for key,value in ridgeLayout.items():
-			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
-				for k,v in layout[key[:5]].items():
-					value[k] = v
-		layout['annotations'] = [
-			dict(
-				xref='paper',
-				xanchor='right',
-				x=-0.01,
-				yref='y'+(str(i+1) if (i > 0) else ''),
-				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']),
-				text=traceNames[len(traceNames)-i-1],
-				font=dict(size=14, family='Arial'),
-				showarrow=False,
-				)
-			for i in range(len(traceNames))
-			]
-		# print(ridgeLayout, file=sys.stderr) #TEMP
-		del layout['xaxis']
-		del layout['yaxis']
-		ridgeLayout.update(layout)
-		return [
-			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
-			]
+	# 	#TODO fix drawing instructions
+	# 	# layout['showlegend'] = True
+	# 	layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+	# 	layout['yaxis']['hoverformat'] = '.3f'
+	# 	layout['yaxis']['showticklabels'] = False
+	# 	layout['yaxis']['ticks'] = ''
+	# 	layout['yaxis']['title'] = ''
+	# 	ridgeLayout = ridgelineFigure['layout']
+	# 	for key,value in ridgeLayout.items():
+	# 		if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
+	# 			for k,v in layout[key[:5]].items():
+	# 				value[k] = v
+	# 	#TODO instead of computing max, see if the trace has a range attribute
+	# 	layout['annotations'] = [
+	# 		dict(
+	# 			xref='paper',
+	# 			xanchor='right',
+	# 			x=-0.01,
+	# 			yref='y'+(str(i+1) if (i > 0) else ''),
+	# 			y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']),
+	# 			text=traceNames[len(traceNames)-i-1],
+	# 			font=dict(size=14, family='Arial'),
+	# 			showarrow=False,
+	# 			)
+	# 		for i in range(len(traceNames))
+	# 		]
+	# 	# print(ridgeLayout, file=sys.stderr) #TEMP
+	# 	del layout['xaxis']
+	# 	del layout['yaxis']
+	# 	ridgeLayout.update(layout)
+	# 	return [
+	# 		dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
+	# 		]
 
-	if graphType == 'Violin Plot':
+	if graphType in ('Violin Plot', 'Density Plot'):
 
 		traces = [
 			dict(
@@ -963,6 +964,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				name=tName,
 				x=values,
 				opacity=0.6,
+				side='positive' if graphType == 'Density Plot' else 'both', #TEMP if we use this for density plot, would probably also want to remove gray border 
 				# bandwidth=0,
 				bandwidth=tuningSliderValue,
 				)
