@@ -1251,6 +1251,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					),
 				error_x=dict(
 					type='data',
+					#color = 'black',
+					thickness = 2.75,
+					width = 5,
 					array=[getError(values)],
 					),
 				orientation='h',
