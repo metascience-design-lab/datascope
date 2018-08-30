@@ -59,11 +59,15 @@
 
 		const isWithinPlotBorder = (e) => {
 			try {
-				const borderRect = document.getElementById("graph").querySelector(".nsewdrag").getBoundingClientRect();
-				return (
-					e.clientX >= borderRect.x && e.clientX <= borderRect.x+borderRect.width
-					&& e.clientY >= borderRect.y && e.clientY <= borderRect.y+borderRect.height
-					);
+				const panes = document.getElementById("graph").querySelectorAll(".nsewdrag");
+				for (let i=0; i<panes.length; i++) {
+					const borderRect = panes[i].getBoundingClientRect();
+					if (e.clientX >= borderRect.x && e.clientX <= borderRect.x+borderRect.width
+					&& e.clientY >= borderRect.y && e.clientY <= borderRect.y+borderRect.height) {
+						return true;
+					}
+				}
+				return false;
 			} catch (err) {
 				return false;
 			}
@@ -163,7 +167,7 @@
 			// }
 			const tuningSliderContainer = document.getElementById("graphTuning_slider_container")
 			const graphType = getGraphType();
-			if (["Table","Box Plot"].includes(graphType) && tuningSliderContainer && tuningSliderContainer.contains(e.target)) {
+			if (graphType === "Box Plot" && tuningSliderContainer && tuningSliderContainer.contains(e.target)) {
 				let clickedString = false;
 				if (e.target.classList.contains("rc-slider-mark-text")) {
 					clickedString = e.target.innerHTML;
@@ -179,12 +183,7 @@
 					clickedString = tuningSliderContainer.querySelector(".rc-slider").querySelector(".rc-slider-mark").children[parseInt(e.target.getAttribute("aria-valuenow"), 10)].innerHTML;
 				}
 				if (clickedString) {
-					if (graphType === "Table") {
-						var idPrefix = "tableToggles-"
-					} else if (graphType === "Box Plot") {
-						var idPrefix = "boxPlotToggles-"
-					}
-					document.getElementById(idPrefix + clickedString).dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
+					document.getElementById("boxPlotToggles-" + clickedString).dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
 				}
 			}
 		});
