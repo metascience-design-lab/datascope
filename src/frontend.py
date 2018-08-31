@@ -1097,9 +1097,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		traces = [
 			go.Table(
-				header = dict(values = (tableHeaders),
+				header = dict(values = (traceNames),
 							  align = ['left','right']),
-				cells = dict(values = (categories),
+				cells = dict(values = (traceValues),
 							 align = ['left','right'])
 				)
 		]
