@@ -1169,7 +1169,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			return np.std(values)/np.sqrt(len(values))
 	elif errorBarType == "± Standard Deviation":
 		def getError(values):
-			return np.std(values)
+			return np.std(values)/2
 	elif errorBarType == "± 95% Confidence Interval":
 		def getError(values):
 			return 1.96*np.std(values)/np.sqrt(len(values))
