@@ -1079,17 +1079,17 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for row in traceValues:
 			tableNumber.append(len(row))
-			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
-			tableAverage.append(round(sum(row)/len(row),1))
-			tableStd.append(round(np.std(row)/np.sqrt(len(row)),1))
-			tableError.append(round(scipyStats.sem(row),1))
-			tableMedian.append(round(np.median(row),1))
+			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 3)) #TODO decide how much to trim
+			tableAverage.append(round(sum(row)/len(row),3))
+			tableStd.append(round(np.std(row)/np.sqrt(len(row)),3))
+			tableError.append(round(scipyStats.sem(row),3))
+			tableMedian.append(round(np.median(row),3))
 			tableMode.append(scipyStats.mode(row)[0][0])
 			tableMinimum.append(min(row))
 			tableMaximum.append(max(row))
-			tableRange.append(round(max(row)-min(row),1))
-			tableSkew.append(round(scipyStats.skew(row),1))
-			tableKurtosis.append(round(scipyStats.kurtosis(row),1))
+			tableRange.append(round(max(row)-min(row),3))
+			tableSkew.append(round(scipyStats.skew(row),3))
+			tableKurtosis.append(round(scipyStats.kurtosis(row),3))
 
 		tableHolder.append(list(map(list, zip(*thingsToZip))))
 		for e in tableHolder[0]:
