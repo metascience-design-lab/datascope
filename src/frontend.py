@@ -157,7 +157,7 @@ INITIAL_LAYOUT = html.Div(children=[
 				),
 			html.Div(
 				id='rangeToZeroIndicator',
-				children="false",
+				children="true",
 				),
 			html.A(
 				id='rangeToZeroButton',
@@ -398,7 +398,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/fe902e1db18d1538222b5b499a32137c3c31fcfa/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/ef9212021b7de605562ab284713e37f07d7e9e97/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -428,13 +428,13 @@ app.css.append_css(dict(external_url=
 def updateRangeToZeroIndicator(nClicks:int, rangeToZeroIndicator:str):
 	if nClicks > 0:
 		return ("false" if (rangeToZeroIndicator == "true") else "true")
-	return "false"
+	return "true"
 
 @app.callback(
 	Output("graphTypeIndicator", "children"),
 	[Input(GRAPHTYPESLIDER_ID, "value")],
 	)
-def updateRangeToZeroIndicator(graphTypeIndex:int):
+def updateGraphTypeIndicator(graphTypeIndex:int):
 	return GRAPHTYPE_CHOICES[graphTypeIndex];
 
 @app.callback(

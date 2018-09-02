@@ -401,7 +401,7 @@
 	const rangeToZeroButton = document.getElementById("rangeToZeroButton");
 	rangeToZeroButton.className = "modebar-btn";
 	rangeToZeroButton.rel = "tooltip";
-	rangeToZeroButton.dataset.title = "Enable to-zero ranging";
+	rangeToZeroButton.dataset.title = "Disable to-zero ranging";
 	rangeToZeroButton.dataset.toggle = "false";
 	rangeToZeroButton.dataset.gravity = "n";
 	rangeToZeroButton.innerHTML = "📉";
