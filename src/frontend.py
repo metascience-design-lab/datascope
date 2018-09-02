@@ -712,14 +712,16 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 
 	instructions = ""
 	if showDataIndicator == "false":
-		instructions += "Make a "
+		instructions += "Make"
 		graphTypeName = GRAPHTYPE_CHOICES[graphType]
 		if graphTypeName == "Density Plot":
 			if graphTuningSliderIndex is None or graphTuningSliderIndex < 0 or graphTuningSliderIndex >= len(DENSITY_CURVE_TYPES):
 				graphTuningSliderIndex = 0
 			if DENSITY_CURVE_TYPES[int(graphTuningSliderIndex)] != "kde":
 				instructions += " normal"
-		instructions += " " + graphTypeName.lower()
+		if len(chosenDataFields) == 1:
+			instructions += " a"
+		instructions += " " + graphTypeName.lower() + ("" if len(chosenDataFields) == 1 else "s")
 		if graphTypeName == "Histogram":
 			instructions += " (bins = " + str(graphTuningSliderIndex) + ")"
 		if graphTypeName == "Violin Plot":
@@ -736,7 +738,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				instructions += " and"
 		if dataGroupField != '':
 			instructions += " (grouped by {})".format(dataGroupField)
-		instructions += '. Double-click it to submit.'
+		instructions += '. Double-click ' + ('it' if len(chosenDataFields) == 1 else 'them') + ' to submit.'
 	return [instructions]
 
 PLOTLY_DEFAULT_COLORS = [
