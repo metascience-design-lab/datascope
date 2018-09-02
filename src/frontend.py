@@ -569,7 +569,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 	if graphType == "Histogram":
 
 		marks = {i:str(i) for i in range(MIN_BINSIZE+4,MAX_BINSIZE+5,5)}
-		marks[MIN_BINSIZE] = {"label":"Bin Size: "+str(MIN_BINSIZE), "style":noWrapStyle}
+		marks[MIN_BINSIZE] = {"label":"Bins: "+str(MIN_BINSIZE), "style":noWrapStyle}
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
@@ -715,13 +715,15 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 	if showDataIndicator == "false":
 		instructions += "Make a "
 		graphTypeName = GRAPHTYPE_CHOICES[graphType]
-		if graphTypeName == "Density Plot":
-			if graphTuningSliderIndex is not None and DENSITY_CURVE_TYPES[graphTuningSliderIndex] != "kde":
-				instructions += " normal"
+		# if graphTypeName == "Density Plot":
+		# 	if graphTuningSliderIndex is None or graphTuningSliderIndex < 0 or graphTuningSliderIndex >= len(DENSITY_CURVE_TYPES):
+		# 		graphTuningSliderIndex = 0
+		# 	if DENSITY_CURVE_TYPES[int(graphTuningSliderIndex)] != "kde":
+		# 		instructions += " normal"
 		instructions += " " + graphTypeName.lower()
 		if graphTypeName == "Histogram":
-			instructions += " (bin size = " + str(graphTuningSliderIndex) + ")"
-		if graphTypeName == "Violin Plot":
+			instructions += " (bins = " + str(graphTuningSliderIndex) + ")"
+		if graphTypeName in ("Violin Plot", "Density Plot"):
 			if graphTuningSliderIndex != 0:
 				instructions += " (bandwidth = " + str(graphTuningSliderIndex) + ")"
 		elif graphTypeName == "Table":
