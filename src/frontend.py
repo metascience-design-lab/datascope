@@ -1044,7 +1044,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				trace['fillcolor'] = 'rgba(0,0,0,0)'
 				trace['line'] = dict(color='rgba(0,0,0,0)')
 
-		layout['xaxis']['ticklen'] = 0
 		layout['yaxis']['title'] = ''
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		# layout['margin']['l'] = 140
@@ -1141,7 +1140,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				trace['fillcolor'] = 'rgba(0,0,0,0)'
 				trace['marker'] = dict(color='rgba(0,0,0,0)')
 
-		layout['xaxis']['ticklen'] = 0
 		layout['yaxis']['title'] = ''
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 
