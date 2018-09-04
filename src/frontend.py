@@ -992,7 +992,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['tickvals'] = []
 		for i,trace in enumerate(graphFigure.data):
 			if i > 0:	
-				prevMaxY = 0.98*max(graphFigure.data[i-1]['y'])
+				prevMaxY = 0.9*max(graphFigure.data[i-1]['y']) 
 				bottomLineTraces.append({'type':'scatter', 'marker':{'color':'rgba(0,0,0,0)'}, 'x':[min(trace['x']), max(trace['x'])], 'y':[prevMaxY, prevMaxY]})
 				trace['y'] = list(map(lambda y:y+prevMaxY, trace['y']))
 			minY = min(trace['y'])
@@ -1230,7 +1230,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ""
 		layout['yaxis']['type'] = 'category'
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['ticklen'] = 0
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 		layout['yaxis']['showgrid'] = True
@@ -1281,7 +1280,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ""
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['yaxis']['type'] = 'category'
-		layout['yaxis']['ticklen'] = 0
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 
