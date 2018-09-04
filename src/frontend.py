@@ -957,7 +957,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
-				del traceValues[i] # can't plot the density of a single variable without errors
+				del traceValues[i] # can't plot the density of a single data point without errors
 		
 		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
 			tuningSliderValue = 0
@@ -972,54 +972,81 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				trace['fill'] = 'tozeroy'
+				trace['fill'] = 'tonexty' #TEMP
+				# trace['fill'] = 'tozeroy'
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
 				trace['fillcolor'] = 'rgba(0,0,0,0)'
-		
-		ridgelineFigure = plotlyTools.make_subplots(
-			rows=len(traceValues),
-			cols=1,
-			specs=[[{}] for i in range(len(traceValues))],
-			shared_xaxes=True, 
-			shared_yaxes=True,
-			vertical_spacing=0,
-			)
-		for i,trace in enumerate(reversed(graphFigure.data)):
-			ridgelineFigure.append_trace(trace, i+1, 1)
 
+		#TEMP
+		for trace in graphFigure.data:
+			trace['hoverinfo'] = 'text'
+			trace['hovertext'] = [ str(round(y,3))+" | "+trace['legendgroup'] for y in trace['y'] ]
+			minY = min(trace['y'])
+			trace['y'] = list(map(lambda y:y-minY, trace['y']))
+		bottomLineTraces = [None]
+		layout['yaxis']['tickmode'] = 'array'
+		layout['yaxis']['ticktext'] = [ trace['legendgroup'] for trace in graphFigure.data ]
+		layout['yaxis']['tickvals'] = []
+		for i,trace in enumerate(graphFigure.data):
+			if i > 0:	
+				prevMaxY = 0.98*max(graphFigure.data[i-1]['y'])
+				bottomLineTraces.append({'type':'scatter', 'marker':{'color':'rgba(0,0,0,0)'}, 'x':[min(trace['x']), max(trace['x'])], 'y':[prevMaxY, prevMaxY]})
+				trace['y'] = list(map(lambda y:y+prevMaxY, trace['y']))
+			minY = min(trace['y'])
+			layout['yaxis']['tickvals'].append(minY+(max(trace['y'])-minY)/2)
+		for i in reversed(range(len(graphFigure.data))):
+			if i > 0:
+				graphFigure.data.insert(i, bottomLineTraces[i])
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['hoverformat'] = '.3f'
-		layout['yaxis']['showticklabels'] = False
-		layout['yaxis']['ticks'] = ''
 		layout['yaxis']['title'] = ''
-		ridgeLayout = ridgelineFigure['layout']
-		for key,value in ridgeLayout.items():
-			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
-				for k,v in layout[key[:5]].items():
-					value[k] = v
-		layout['annotations'] = [
-			dict(
-				xref='paper',
-				xanchor='right',
-				x=-0.01,
-				yref='y'+(str(i+1) if (i > 0) else ''),
-				# possible speed improvement: if graphFigure.data[len(traceNames)-i-1]['y'] is sorted, can use [-1] instead of max()
-				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']), 
-				text=traceNames[len(traceNames)-i-1],
-				font=dict(size=14, family='Arial'),
-				showarrow=False,
-				)
-			for i in range(len(traceNames))
-			]
-		del layout['xaxis']
-		del layout['yaxis']
-		ridgeLayout.update(layout)
+		graphFigure['layout'].update(layout)
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
+			dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
 			]
+		
+		# ridgelineFigure = plotlyTools.make_subplots(
+		# 	rows=len(traceValues),
+		# 	cols=1,
+		# 	specs=[[{}] for i in range(len(traceValues))],
+		# 	shared_xaxes=True, 
+		# 	shared_yaxes=True,
+		# 	vertical_spacing=0,
+		# 	)
+		# for i,trace in enumerate(reversed(graphFigure.data)):
+		# 	ridgelineFigure.append_trace(trace, i+1, 1)
+
+		# layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+		# layout['yaxis']['hoverformat'] = '.3f'
+		# layout['yaxis']['showticklabels'] = False
+		# layout['yaxis']['ticks'] = ''
+		# layout['yaxis']['title'] = ''
+		# ridgeLayout = ridgelineFigure['layout']
+		# for key,value in ridgeLayout.items():
+		# 	if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
+		# 		for k,v in layout[key[:5]].items():
+		# 			value[k] = v
+		# layout['annotations'] = [
+		# 	dict(
+		# 		xref='paper',
+		# 		xanchor='right',
+		# 		x=-0.01,
+		# 		yref='y'+(str(i+1) if (i > 0) else ''),
+		# 		y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']), 
+		# 		text=traceNames[len(traceNames)-i-1],
+		# 		font=dict(size=14, family='Arial'),
+		# 		showarrow=False,
+		# 		)
+		# 	for i in range(len(traceNames))
+		# 	]
+		# del layout['xaxis']
+		# del layout['yaxis']
+		# ridgeLayout.update(layout)
+		# return [
+		# 	dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
+		# 	]
 
 	if graphType == 'Violin Plot':
 
