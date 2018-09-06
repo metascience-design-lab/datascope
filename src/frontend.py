@@ -81,9 +81,9 @@ BOXPLOTINFO_CHOICES = [
 	]
 
 BARDOTPLOTERROR_CHOICES = [
-	"± 95% CI",
-	"± SD",
-	"± SEM",
+	"95% CI",
+	"SD",
+	"SEM",
 	]
 
 MIN_BINSIZE = 1 # convert to percent before version 0.2 is launched
@@ -1174,13 +1174,13 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		tuningSliderValue = 0
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-int(tuningSliderValue)]
 
-	if errorBarType == "± SEM":
+	if errorBarType == "SEM":
 		def getError(values):
 			return np.std(values)/np.sqrt(len(values))
-	elif errorBarType == "± SD":
+	elif errorBarType == "SD":
 		def getError(values):
 			return np.std(values)/2
-	elif errorBarType == "± 95% CI":
+	elif errorBarType == "95% CI":
 		def getError(values):
 			return 1.96*np.std(values)/np.sqrt(len(values))
 
