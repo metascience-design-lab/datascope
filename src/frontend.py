@@ -81,13 +81,13 @@ BOXPLOTINFO_CHOICES = [
 	]
 
 BARDOTPLOTERROR_CHOICES = [
-	"95% CI",
-	"SD",
-	"SEM",
+	"± 95% Confidence Interval",
+	"± Standard Deviation",
+	"± Standard Error",
 	]
 
-MIN_BINSIZE = 1 # convert to percent before version 0.2 is launched
-MAX_BINSIZE = 20 # conert to percent before version 0.2 is launched; http://www.statisticshowto.com/choose-bin-sizes-statistics/
+MIN_BINSIZE = 1
+MAX_BINSIZE = 20 # http://www.statisticshowto.com/choose-bin-sizes-statistics/
 
 # DRAWCONTROL_CHOICES = [
 # 	'Submit', # bottom choice
@@ -641,19 +641,18 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 			]
 
 	elif graphType == "Table":
-
 		return [
-			dcc.Slider(
-				id="graphTuning_slider",
-				min=0,
-				max=3,
-				value=0,
-				marks={i:{"label":e, "style":{"transform":"translate(0,10px)"}} for i,e in enumerate(TABLEINFO_CHOICES)},
-				step=None,
-				included=False,
-				vertical=True,
-				)
-			]
+				dcc.Slider(
+					id="graphTuning_slider",
+					min=0,
+					max=3,
+					value=0,
+					marks={i:{"label":e, "style":{"transform":"translate(0,10px)"}} for i,e in enumerate(TABLEINFO_CHOICES)},
+					step=None,
+					included=False,
+					vertical=True,
+				),
+		  ]
 
 	elif graphType == 'Box Plot':
 
@@ -825,8 +824,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
-		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
@@ -957,7 +956,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
-				del traceValues[i] # can't plot the density of a single data point without errors
+				del traceValues[i] # can't plot the density of a single variable without errors
 		
 		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
 			tuningSliderValue = 0
@@ -972,81 +971,54 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				trace['fill'] = 'tonexty' #TEMP
-				# trace['fill'] = 'tozeroy'
+				trace['fill'] = 'tozeroy'
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
 				trace['fillcolor'] = 'rgba(0,0,0,0)'
-
-		#TEMP
-		for trace in graphFigure.data:
-			trace['hoverinfo'] = 'text'
-			trace['hovertext'] = [ str(round(y,3))+" | "+trace['legendgroup'] for y in trace['y'] ]
-			minY = min(trace['y'])
-			trace['y'] = list(map(lambda y:y-minY, trace['y']))
-		bottomLineTraces = [None]
-		layout['yaxis']['tickmode'] = 'array'
-		layout['yaxis']['ticktext'] = [ trace['legendgroup'] for trace in graphFigure.data ]
-		layout['yaxis']['tickvals'] = []
-		for i,trace in enumerate(graphFigure.data):
-			if i > 0:	
-				prevMaxY = 0.9*max(graphFigure.data[i-1]['y']) 
-				bottomLineTraces.append({'type':'scatter', 'marker':{'color':'rgba(0,0,0,0)'}, 'x':[min(trace['x']), max(trace['x'])], 'y':[prevMaxY, prevMaxY]})
-				trace['y'] = list(map(lambda y:y+prevMaxY, trace['y']))
-			minY = min(trace['y'])
-			layout['yaxis']['tickvals'].append(minY+(max(trace['y'])-minY)/2)
-		for i in reversed(range(len(graphFigure.data))):
-			if i > 0:
-				graphFigure.data.insert(i, bottomLineTraces[i])
-		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['title'] = ''
-		graphFigure['layout'].update(layout)
-		return [
-			dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
-			]
 		
-		# ridgelineFigure = plotlyTools.make_subplots(
-		# 	rows=len(traceValues),
-		# 	cols=1,
-		# 	specs=[[{}] for i in range(len(traceValues))],
-		# 	shared_xaxes=True, 
-		# 	shared_yaxes=True,
-		# 	vertical_spacing=0,
-		# 	)
-		# for i,trace in enumerate(reversed(graphFigure.data)):
-		# 	ridgelineFigure.append_trace(trace, i+1, 1)
+		ridgelineFigure = plotlyTools.make_subplots(
+			rows=len(traceValues),
+			cols=1,
+			specs=[[{}] for i in range(len(traceValues))],
+			shared_xaxes=True, 
+			shared_yaxes=True,
+			vertical_spacing=0,
+			)
+		for i,trace in enumerate(reversed(graphFigure.data)):
+			ridgelineFigure.append_trace(trace, i+1, 1)
 
-		# layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		# layout['yaxis']['hoverformat'] = '.3f'
-		# layout['yaxis']['showticklabels'] = False
-		# layout['yaxis']['ticks'] = ''
-		# layout['yaxis']['title'] = ''
-		# ridgeLayout = ridgelineFigure['layout']
-		# for key,value in ridgeLayout.items():
-		# 	if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
-		# 		for k,v in layout[key[:5]].items():
-		# 			value[k] = v
-		# layout['annotations'] = [
-		# 	dict(
-		# 		xref='paper',
-		# 		xanchor='right',
-		# 		x=-0.01,
-		# 		yref='y'+(str(i+1) if (i > 0) else ''),
-		# 		y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']), 
-		# 		text=traceNames[len(traceNames)-i-1],
-		# 		font=dict(size=14, family='Arial'),
-		# 		showarrow=False,
-		# 		)
-		# 	for i in range(len(traceNames))
-		# 	]
-		# del layout['xaxis']
-		# del layout['yaxis']
-		# ridgeLayout.update(layout)
-		# return [
-		# 	dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
-		# 	]
+		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+		layout['yaxis']['hoverformat'] = '.3f'
+		layout['yaxis']['showticklabels'] = False
+		layout['yaxis']['ticks'] = ''
+		layout['yaxis']['title'] = ''
+		ridgeLayout = ridgelineFigure['layout']
+		for key,value in ridgeLayout.items():
+			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
+				for k,v in layout[key[:5]].items():
+					value[k] = v
+		layout['annotations'] = [
+			dict(
+				xref='paper',
+				xanchor='right',
+				x=-0.01,
+				yref='y'+(str(i+1) if (i > 0) else ''),
+				# possible speed improvement: if graphFigure.data[len(traceNames)-i-1]['y'] is sorted, can use [-1] instead of max()
+				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']), 
+				text=traceNames[len(traceNames)-i-1],
+				font=dict(size=14, family='Arial'),
+				showarrow=False,
+				)
+			for i in range(len(traceNames))
+			]
+		del layout['xaxis']
+		del layout['yaxis']
+		ridgeLayout.update(layout)
+		return [
+			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
+			]
 
 	if graphType == 'Violin Plot':
 
@@ -1114,33 +1086,110 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for row in traceValues:
 			tableNumber.append(len(row))
-			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
-			tableAverage.append(round(sum(row)/len(row),1))
-			tableStd.append(round(np.std(row)/np.sqrt(len(row)),1))
-			tableError.append(round(scipyStats.sem(row),1))
-			tableMedian.append(round(np.median(row),1))
+			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 3)) #TODO decide how much to trim
+			tableAverage.append(round(sum(row)/len(row),3))
+			tableStd.append(round(np.std(row)/np.sqrt(len(row)),3))
+			tableError.append(round(scipyStats.sem(row),3))
+			tableMedian.append(round(np.median(row),3))
 			tableMode.append(scipyStats.mode(row)[0][0])
 			tableMinimum.append(min(row))
 			tableMaximum.append(max(row))
-			tableRange.append(round(max(row)-min(row),1))
-			tableSkew.append(round(scipyStats.skew(row),1))
-			tableKurtosis.append(round(scipyStats.kurtosis(row),1))
+			tableRange.append(round(max(row)-min(row),3))
+			tableSkew.append(round(scipyStats.skew(row),3))
+			tableKurtosis.append(round(scipyStats.kurtosis(row),3))
 
 		tableHolder.append(list(map(list, zip(*thingsToZip))))
 		for e in tableHolder[0]:
 			categories.append(e)
 
-		traces = [
-			go.Table(
-				header = dict(values = (tableHeaders),
-							  align = ['left','right']),
-				cells = dict(values = (categories),
-							 align = ['left','right'])
-				)
-		]
+		# convert the data being plotted into numbers
+		print(tableHeaders)
+		print(traceValues)
+		return [
+			html.Table(className='asdfe',
+			   children=[
+				   html.Thead(
+					   html.Tr(
+						   children=[html.Th(col) for col in tableHeaders]
+					   )
+				   ),
+				   html.Tbody([
+				   	html.Td(
+				   		children=[html.Tr(data) for data in th]
+				   	)
+				   	for th in categories]
+				   )
+			   ]),
 
-		if not showDataBoolean:
-			traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
+		]
+		# if tuningSliderValue is None or tuningSliderValue >= len(TABLEINFO_CHOICES) or tuningSliderValue < 0:
+		# 	tuningSliderValue = 0
+		# tableType = TABLEINFO_CHOICES[int(tuningSliderValue)]
+        #
+		# tableHeaders = ['']
+		# tableHolder = []
+		# tableNumber = []
+		# tableAverage = []
+		# tableStd = []
+		# tableError = []
+		# tableMedian = []
+		# tableMode = []
+		# tableRange = []
+		# tableMinimum = []
+		# tableTrimean = []
+		# tableMaximum = []
+		# tableSkew = []
+		# tableKurtosis = []
+        #
+		# if tableType == "Basic Parametric":
+		# 	categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Maximum"]]
+		# 	thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableMaximum]
+		# elif tableType == "Complete Parametric":
+		# 	categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+		# 	thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
+		# elif tableType == "Basic Nonparametric":
+		# 	categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Maximum"]]
+		# 	thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMaximum]
+		# elif tableType == "Complete Nonparametric":
+		# 	categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+		# 	thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
+        #
+		# for name in traceNames:
+		# 	tableHeaders.append(name)
+        #
+		# for row in traceValues:
+		# 	tableNumber.append(len(row))
+		# 	tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
+		# 	tableAverage.append(round(sum(row)/len(row),1))
+		# 	tableStd.append(round(np.std(row)/np.sqrt(len(row)),1))
+		# 	tableError.append(round(scipyStats.sem(row),1))
+		# 	tableMedian.append(round(np.median(row),1))
+		# 	tableMode.append(scipyStats.mode(row)[0][0])
+		# 	tableMinimum.append(min(row))
+		# 	tableMaximum.append(max(row))
+		# 	tableRange.append(round(max(row)-min(row),1))
+		# 	tableSkew.append(round(scipyStats.skew(row),1))
+		# 	tableKurtosis.append(round(scipyStats.kurtosis(row),1))
+        #
+		# tableHolder.append(list(map(list, zip(*thingsToZip))))
+		# for e in tableHolder[0]:
+		# 	categories.append(e)
+        #
+		# traces = [
+
+		# 	go.Table(
+		# 		header = dict(values = (tableHeaders),
+		# 					  align = ['left','right'],
+		# 					  line=dict(color='#ffffff')),
+        #
+		# 		cells = dict(values = (categories),
+		# 					 align = ['left','right'],
+		# 					 line = dict(color = 'white'))
+		# 		)
+		# ]
+
+		# if not showDataBoolean:
+		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
 
 		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
 
@@ -1174,13 +1223,13 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		tuningSliderValue = 0
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-int(tuningSliderValue)]
 
-	if errorBarType == "SEM":
+	if errorBarType == "± Standard Error":
 		def getError(values):
 			return np.std(values)/np.sqrt(len(values))
-	elif errorBarType == "SD":
+	elif errorBarType == "± Standard Deviation":
 		def getError(values):
 			return np.std(values)/2
-	elif errorBarType == "95% CI":
+	elif errorBarType == "± 95% Confidence Interval":
 		def getError(values):
 			return 1.96*np.std(values)/np.sqrt(len(values))
 
@@ -1230,6 +1279,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ""
 		layout['yaxis']['type'] = 'category'
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+		layout['yaxis']['ticklen'] = 0
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 		layout['yaxis']['showgrid'] = True
@@ -1280,6 +1330,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ""
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['yaxis']['type'] = 'category'
+		layout['yaxis']['ticklen'] = 0
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 
@@ -1305,6 +1356,7 @@ def updateShowDataIndicator(nClicks:int, showDataIndicator:str):
 		return "false"
 	else:
 		return "true" if showDataIndicator=="false" else "false"
+
 
 if __name__ == '__main__': # if using the local machine as the web server
 

@@ -1,0 +1,16 @@
+.asdfe {
+  font-size : 50pt;
+  border: solid;
+}
+.asdfe td {
+  border: solid;
+  border-width: 0.2px;
+}
+
+.asdfe tr:hover {
+  background-color: yellow;
+}
+
+.asdfe td:hover {
+  background-color: red;
+}
