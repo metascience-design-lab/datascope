@@ -1106,6 +1106,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		print(tableHeaders)
 		print(traceValues)
 		return [
+			# TODO: don't display graph but only the settings buttons.
+			# dcc.Graph(id=GRAPH_ID, style={'display': 'none'}, config=graphConfig),
 			html.Div(className="frame",children=[
 				html.Table(className="table-format",
 			   		children=[
