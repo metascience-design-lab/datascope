@@ -81,13 +81,13 @@ BOXPLOTINFO_CHOICES = [
 	]
 
 BARDOTPLOTERROR_CHOICES = [
-	"± 95% Confidence Interval",
-	"± Standard Deviation",
-	"± Standard Error",
+	"95% CI",
+	"SD",
+	"SEM",
 	]
 
-MIN_BINSIZE = 1
-MAX_BINSIZE = 20 # http://www.statisticshowto.com/choose-bin-sizes-statistics/
+MIN_BINSIZE = 1 # convert to percent before version 0.2 is launched
+MAX_BINSIZE = 20 # conert to percent before version 0.2 is launched; http://www.statisticshowto.com/choose-bin-sizes-statistics/
 
 # DRAWCONTROL_CHOICES = [
 # 	'Submit', # bottom choice
@@ -825,8 +825,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
-		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
@@ -1174,13 +1174,13 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		tuningSliderValue = 0
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-int(tuningSliderValue)]
 
-	if errorBarType == "± Standard Error":
+	if errorBarType == "SEM":
 		def getError(values):
 			return np.std(values)/np.sqrt(len(values))
-	elif errorBarType == "± Standard Deviation":
+	elif errorBarType == "SD":
 		def getError(values):
 			return np.std(values)/2
-	elif errorBarType == "± 95% Confidence Interval":
+	elif errorBarType == "95% CI":
 		def getError(values):
 			return 1.96*np.std(values)/np.sqrt(len(values))
 
