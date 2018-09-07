@@ -410,7 +410,7 @@ INITIAL_LAYOUT = html.Div(children=[
 	)
 
 # creates the "app" helper variable
-app = dash.Dash()
+app = dash.Dash(__name__)
 app.layout = INITIAL_LAYOUT
 server = app.server
 app.scripts.append_script({"external_url":"https://code.jquery.com/jquery-1.11.0.min.js"})
@@ -1106,92 +1106,25 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		print(tableHeaders)
 		print(traceValues)
 		return [
-			html.Table(className='asdfe',
+			html.Table(className="table-format",
 			   children=[
 				   html.Thead(
 					   html.Tr(
 						   children=[html.Th(col) for col in tableHeaders]
 					   )
 				   ),
-				   html.Tbody([
-				   	html.Td(
-				   		children=[html.Tr(data) for data in th]
-				   	)
-				   	for th in categories]
+				   html.Tbody(className="table-body",
+			   children=[
+					html.Td(
+						children=[html.Tr(data) for data in th]
+					)
+					for th in categories]
 				   )
-			   ]),
+			   ])
+
 
 		]
-		# if tuningSliderValue is None or tuningSliderValue >= len(TABLEINFO_CHOICES) or tuningSliderValue < 0:
-		# 	tuningSliderValue = 0
-		# tableType = TABLEINFO_CHOICES[int(tuningSliderValue)]
-        #
-		# tableHeaders = ['']
-		# tableHolder = []
-		# tableNumber = []
-		# tableAverage = []
-		# tableStd = []
-		# tableError = []
-		# tableMedian = []
-		# tableMode = []
-		# tableRange = []
-		# tableMinimum = []
-		# tableTrimean = []
-		# tableMaximum = []
-		# tableSkew = []
-		# tableKurtosis = []
-        #
-		# if tableType == "Basic Parametric":
-		# 	categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Maximum"]]
-		# 	thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableMaximum]
-		# elif tableType == "Complete Parametric":
-		# 	categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
-		# 	thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
-		# elif tableType == "Basic Nonparametric":
-		# 	categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Maximum"]]
-		# 	thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMaximum]
-		# elif tableType == "Complete Nonparametric":
-		# 	categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
-		# 	thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
-        #
-		# for name in traceNames:
-		# 	tableHeaders.append(name)
-        #
-		# for row in traceValues:
-		# 	tableNumber.append(len(row))
-		# 	tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
-		# 	tableAverage.append(round(sum(row)/len(row),1))
-		# 	tableStd.append(round(np.std(row)/np.sqrt(len(row)),1))
-		# 	tableError.append(round(scipyStats.sem(row),1))
-		# 	tableMedian.append(round(np.median(row),1))
-		# 	tableMode.append(scipyStats.mode(row)[0][0])
-		# 	tableMinimum.append(min(row))
-		# 	tableMaximum.append(max(row))
-		# 	tableRange.append(round(max(row)-min(row),1))
-		# 	tableSkew.append(round(scipyStats.skew(row),1))
-		# 	tableKurtosis.append(round(scipyStats.kurtosis(row),1))
-        #
-		# tableHolder.append(list(map(list, zip(*thingsToZip))))
-		# for e in tableHolder[0]:
-		# 	categories.append(e)
-        #
-		# traces = [
 
-		# 	go.Table(
-		# 		header = dict(values = (tableHeaders),
-		# 					  align = ['left','right'],
-		# 					  line=dict(color='#ffffff')),
-        #
-		# 		cells = dict(values = (categories),
-		# 					 align = ['left','right'],
-		# 					 line = dict(color = 'white'))
-		# 		)
-		# ]
-
-		# if not showDataBoolean:
-		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
-
-		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
 
 	elif graphType == 'Box Plot':
 

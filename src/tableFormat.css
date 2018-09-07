@@ -1,16 +1,15 @@
-.asdfe {
-  font-size : 50pt;
+.tableformat {
   border: solid;
 }
-.asdfe td {
+.tableformat td {
   border: solid;
   border-width: 0.2px;
 }
 
-.asdfe tr:hover {
+.tableformat tr:hover {
   background-color: yellow;
 }
 
-.asdfe td:hover {
+.tableformat td:hover {
   background-color: red;
 }
