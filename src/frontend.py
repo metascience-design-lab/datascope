@@ -766,26 +766,26 @@ PLOTLY_DEFAULT_COLORS = [
 	'#ffffb3',  # R Color Brewer - Set 3 (Pastel)
 
 
-	#'#440154FF', # viridis 1
-	#'#39568CFF', # viridis 2
-	#'#1F968BFF', # viridis 3
-	#'#73D055FF', # viridis 4
-	#'#481567FF', # viridis 5
-	#'#33638DFF', # viridis 6
-	#'#20A387FF', # viridis 7
-	#'#95D840FF', # viridis 8
-	#'#482677FF', # viridis 9
-	#'#2D708EFF', # viridis 10
-	#'#29AF7FFF', # viridis 11
-	#'#B8DE29FF', # viridis 12
-	#'#453781FF', # viridis 13
-	#'#287D8EFF', # viridis 14
-	#'#3CBB75FF', # viridis 15
-	#'#DCE319FF', # viridis 16
-	#'#404788FF', # viridis 17
-	#'#238A8DFF', # viridis 18
-	#'#55C667FF', # viridis 19
-	#'#FDE725FF', # viridis 20
+	# '#440154FF', # viridis 1
+	# '#39568CFF', # viridis 2
+	# '#1F968BFF', # viridis 3
+	# '#73D055FF', # viridis 4
+	# '#481567FF', # viridis 5
+	# '#33638DFF', # viridis 6
+	# '#20A387FF', # viridis 7
+	# '#95D840FF', # viridis 8
+	# '#482677FF', # viridis 9
+	# '#2D708EFF', # viridis 10
+	# '#29AF7FFF', # viridis 11
+	# '#B8DE29FF', # viridis 12
+	# '#453781FF', # viridis 13
+	# '#287D8EFF', # viridis 14
+	# '#3CBB75FF', # viridis 15
+	# '#DCE319FF', # viridis 16
+	# '#404788FF', # viridis 17
+	# '#238A8DFF', # viridis 18
+	# '#55C667FF', # viridis 19
+	# '#FDE725FF', # viridis 20
 	]
 
 from collections import defaultdict
