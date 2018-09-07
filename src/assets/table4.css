@@ -27,7 +27,7 @@ table td {
 	max-width: 800px;
 	top: 0px;
 	left: 0px;
-	transform: translate(12%);
+	transform: translate(12%, 10%);
 	overflow: auto;
 	background-color: white;
 	position: absolute;
