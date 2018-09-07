@@ -1106,22 +1106,23 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		print(tableHeaders)
 		print(traceValues)
 		return [
-			html.Table(className="table-format",
-			   children=[
-				   html.Thead(
-					   html.Tr(
-						   children=[html.Th(col) for col in tableHeaders]
-					   )
-				   ),
-				   html.Tbody(className="table-body",
-			   children=[
-					html.Td(
-						children=[html.Tr(data) for data in th]
-					)
-					for th in categories]
-				   )
-			   ])
-
+			html.Div(className="frame",children=[
+				html.Table(className="table-format",
+			   		children=[
+				   		html.Thead(
+					   		html.Tr(
+						   		children=[html.Th(col) for col in tableHeaders]
+					   		)
+				   		),
+				   		html.Tbody(className="table-body",
+			   				children=[
+								html.Td(
+									children=[html.Tr(data) for data in th]
+								)
+							for th in categories]
+				   			)
+			   			])
+				])
 
 		]
 

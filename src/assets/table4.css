@@ -3,7 +3,6 @@
 	border-color: white;
 	font-size: 18px;
 	font-family: "Times New Roman", Times, serif;
-	transform: translate(10%);
 	/*overflow: auto;*/
 }
 table th {
@@ -15,11 +14,17 @@ table th {
 	border-bottom-width: 3px;
 }
 
-table td:last-child {
+table td {
 	/*border-top: solid;*/
 	border-bottom: solid;
 	/*border-top-color: black;*/
 	border-bottom-color: black;
 	/*border-top-width: 1.5px;*/
 	border-bottom-width: 1.5px;
+}
+
+.frame {
+	max-width: 800px;
+	transform: translate(12%);
+	overflow: auto;
 }
