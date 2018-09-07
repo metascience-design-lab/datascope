@@ -372,7 +372,7 @@
 	customizeDataBtn.dataset.title = "Show data settings";
 	customizeDataBtn.dataset.toggle = "false";
 	customizeDataBtn.dataset.gravity = "n";
-	customizeDataBtn.innerHTML = "⚙️";
+	customizeDataBtn.innerHTML = "☘";
 	let _showDataCustomization = false;
 	const _dataCustomizationIds = [
 		"datafieldselector_container",
@@ -397,6 +397,23 @@
 		}
 	});
 
+	const fullscreenbutton = document.createElement("A");
+	fullscreenbutton.className = "modebar-btn";
+	fullscreenbutton.rel = "tooltip";
+	fullscreenbutton.dataset.title = "Make graph full screen";
+	fullscreenbutton.dataset.toggle = "false";
+	fullscreenbutton.dataset.gravity = "n";
+	fullscreenbutton.innerHTML = "💩";
+	let _fullscreen = false;
+		fullscreenbutton.addEventListener("click", () => {
+		if (_fullscreen) {
+			 _fullscreen = false;
+			 console.log(_fullscreen);
+		} else {
+			 _fullscreen = true;
+			 console.log(_fullscreen);
+		}
+	});
 
 	const rangeToZeroButton = document.getElementById("rangeToZeroButton");
 	rangeToZeroButton.className = "modebar-btn";
@@ -414,7 +431,8 @@
 		}
 	});
 
-	extraButtons = [downloadBtn, customizeDataBtn, rangeToZeroButton];
+	extraButtons = [downloadBtn, customizeDataBtn, rangeToZeroButton, fullscreenbutton];
+	console.log(extraButtons);
 	$(document).on("mousemove", () => {
 		if (!drawingIsAllowed()) {
 			const buttons = document.querySelector(".modebar-group");
