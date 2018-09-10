@@ -847,7 +847,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
-		margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks+1) else 0), #TODO adapt left padding to length of labels
+		margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks+1) else 25), #TODO adapt left padding to length of labels
 		height=500,
 		titlefont=dict(size=14),
 		)
