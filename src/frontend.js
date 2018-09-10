@@ -1,5 +1,5 @@
-	var canvasWidth = 1000;
-	var canvasHeight = 450;
+	var canvasWidth = 1200;
+	var canvasHeight = 500;
 	var curColor = "#000000";
 	var radius = 3;
 	var xFreehand = new Array();
