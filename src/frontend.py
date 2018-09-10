@@ -184,7 +184,7 @@ INITIAL_LAYOUT = html.Div(children=[
 					maxWidth="320px",
 					textAlign="center",
 					# top="calc(486px/2)",
-					top="40%",
+					top="55%",
 					transform="translate(-50%, -50%)",
 					),
 				children=[
@@ -240,9 +240,9 @@ INITIAL_LAYOUT = html.Div(children=[
 					],
 				style={
 					'position': 'absolute',
-					'height': '295',
+					'height': '395',
 					'right': '-20',
-					'bottom': '82',
+					'bottom': '-18',
 					},
 				),
 			],
@@ -265,6 +265,8 @@ INITIAL_LAYOUT = html.Div(children=[
 			],
 		style=dict(
 			paddingLeft="40px",
+			position="relative",
+			top="100px",
 			),
 		),
 
@@ -402,7 +404,7 @@ INITIAL_LAYOUT = html.Div(children=[
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
-	], style={'maxWidth':'1000px',
+	], style={'maxWidth':'1200px',
 			  'padding-left':'0px', 'padding-right':'110px',
 			  'user-select':'none', '-ms-user-select':'none',
 			  '-moz-user-select':'none', '-webkit-user-select':'none',
@@ -829,7 +831,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
-		height=400,
+		height=500,
 		titlefont=dict(size=14),
 		)
 	if rangeToZeroBoolean:
