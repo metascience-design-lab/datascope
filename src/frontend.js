@@ -449,7 +449,7 @@
 	rangeToZeroButton.dataset.title = "Disable to-zero ranging";
 	rangeToZeroButton.dataset.toggle = "false";
 	rangeToZeroButton.dataset.gravity = "n";
-	rangeToZeroButton.innerHTML = "📉";
+	rangeToZeroButton.innerHTML = "0️⃣";
 	const _rangeToZeroIndicator = document.getElementById("rangeToZeroIndicator");
 	rangeToZeroButton.addEventListener("click", () => {
 		if (_rangeToZeroIndicator.innerHTML === "true") {
@@ -459,7 +459,27 @@
 		}
 	});
 
-	extraButtons = [customizeDataBtn, downloadBtn, rangeToZeroButton, fullscreenbutton];
+	const graphSlidersButton = document.createElement("A");
+	graphSlidersButton.className = "modebar-btn";
+	graphSlidersButton.rel = "tooltip";
+	graphSlidersButton.dataset.title = "Show graph settings";
+	graphSlidersButton.dataset.toggle = "false";
+	graphSlidersButton.dataset.gravity = "n";
+	graphSlidersButton.innerHTML = "📊";
+	let _showGraphSlider = false;
+	graphSlidersButton.addEventListener("click", () => {
+		if (_showGraphSlider) {
+		 	document.getElementById("graphTuning_slider_container").style.display = "none";
+		 	_showGraphSlider = false;
+			graphSlidersButton.dataset.title = "Show graph settings";
+		} else {
+		 	document.getElementById("graphTuning_slider_container").style.display = "block";
+		 	_showGraphSlider = true;
+			graphSlidersButton.dataset.title = "Hide graph settings";
+		}
+	});
+
+	extraButtons = [customizeDataBtn, downloadBtn, graphSlidersButton, rangeToZeroButton, fullscreenbutton];
 	$(document).on("mousemove", () => {
 		if (!drawingIsAllowed()) {
 			const buttons = document.querySelector(".modebar-group");

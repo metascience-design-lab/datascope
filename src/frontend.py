@@ -239,6 +239,7 @@ INITIAL_LAYOUT = html.Div(children=[
 						),
 					],
 				style={
+					'display': 'none',
 					'position': 'absolute',
 					'height': '395',
 					'right': '-20',
@@ -410,7 +411,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/8dc4ce3d3ca287bc067821238cc3356fe6c49129/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/c66e1656773f450637db7d681f1949dfb592cdbd/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
