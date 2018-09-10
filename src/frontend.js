@@ -400,17 +400,17 @@
 	const fullscreenbutton = document.createElement("A");
 	fullscreenbutton.className = "modebar-btn";
 	fullscreenbutton.rel = "tooltip";
-	fullscreenbutton.dataset.title = "Make graph full screen";
+	fullscreenbutton.dataset.title = "Enable full screen";
 	fullscreenbutton.dataset.toggle = "false";
 	fullscreenbutton.dataset.gravity = "n";
-	fullscreenbutton.innerHTML = "🖾";
+	fullscreenbutton.innerHTML = "📺";
 	let originalGraphToWindowRatioWidth;
 	let originalGraphToWindowRatioHeight;
 	let _fullscreen = false;
 		fullscreenbutton.addEventListener("click", () => {
 		if (_fullscreen) {
+			fullscreenbutton.dataset.title = "Enable full screen";
 			 _fullscreen = false;
-			 console.log(_fullscreen);
 			 Plotly.relayout('graph', {
 				 width: window.innerWidth*originalGraphToWindowRatioWidth,
 				 height: window.innerHeight*originalGraphToWindowRatioHeight,
@@ -439,7 +439,7 @@
 				});
 			  })
 			 _fullscreen = true;
-			 console.log(_fullscreen);
+			fullscreenbutton.dataset.title = "Disable full screen";
 		}
 	});
 

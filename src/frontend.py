@@ -398,7 +398,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/3598259536dfed2de158b8d9a32ff5f559860903/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/4f036cc8c9d2443131f32cb1e3bc374b114cd336/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
