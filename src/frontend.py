@@ -270,7 +270,17 @@ INITIAL_LAYOUT = html.Div(children=[
 			),
 		),
 
-	# 3 line breaks
+	# 6 line breaks
+	dcc.Markdown('''
+&nbsp;
+		'''),
+	dcc.Markdown('''
+&nbsp;
+		'''),
+
+	dcc.Markdown('''
+&nbsp;
+		'''),
 	dcc.Markdown('''
 &nbsp;
 		'''),
