@@ -184,7 +184,7 @@ INITIAL_LAYOUT = html.Div(children=[
 					# whiteSpace="nowrap",
 					# overflow="hidden",
 					# textOverflow="ellipsis",
-					left="calc(50% + 30px)", #TODO adapt to adaptive left padding when implemented
+					left="calc(50% + 60px)", #TODO adapt to adaptive left padding when implemented
 					maxWidth="320px",
 					textAlign="center",
 					# top="calc(486px/2)",
