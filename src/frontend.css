@@ -19,6 +19,6 @@
 
 .modebar-group {	
 	position: relative;
-	right: 70px;
+	right: 25px !important;
 	top: -8px;
 }

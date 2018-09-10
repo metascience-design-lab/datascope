@@ -459,7 +459,7 @@
 		}
 	});
 
-	const graphSlidersButton = document.createElement("A");
+	const graphSlidersButton = document.getElementById("graphSlidersButton");
 	graphSlidersButton.className = "modebar-btn";
 	graphSlidersButton.rel = "tooltip";
 	graphSlidersButton.dataset.title = "Show graph settings";

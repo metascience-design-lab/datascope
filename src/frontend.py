@@ -163,6 +163,10 @@ INITIAL_LAYOUT = html.Div(children=[
 				id='rangeToZeroButton',
 				n_clicks=0,
 				),
+			html.A(
+				id='graphSlidersButton',
+				n_clicks=0,
+				),
 			html.Div(
 				id='graphTypeIndicator',
 				children="Density Plot",
@@ -268,6 +272,7 @@ INITIAL_LAYOUT = html.Div(children=[
 			paddingLeft="40px",
 			position="relative",
 			top="100px",
+			left="40px",
 			),
 		),
 
@@ -411,7 +416,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/c66e1656773f450637db7d681f1949dfb592cdbd/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/a66b71ee9ea2776d3eba6ffbb0db8d5d78a78499/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -430,7 +435,7 @@ app.scripts.append_script({"external_url":"https://code.jquery.com/jquery-1.11.0
 app.title = WEBAPP_TITLE
 app.css.append_css(dict(external_url=CSS_URL))
 app.css.append_css(dict(external_url=
-	'https://rawgit.com/MasalaMunch/db53bfa58350aa4a969aeba5689d086e/raw/87acfae74b5bfff91a295a0f90458ae796d54cc9/statscope.css'
+	'https://rawgit.com/MasalaMunch/db53bfa58350aa4a969aeba5689d086e/raw/91a981060206189f1da3441dc55e68c18417a3ae/statscope.css'
 	))
 
 @app.callback(
@@ -813,10 +818,11 @@ from collections import defaultdict
 	 Input("uploaded_fileAsJson", "children"),
 	 Input("graphTuning_slider", "value"),
 	 Input("rangeToZeroIndicator", "children"),
-	 Input("showDataIndicator", "children")]
+	 Input("showDataIndicator", "children"),
+	 Input("graphSlidersButton", "n_clicks")]
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
 	)
-def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, boxPlotMean, boxPlotOutliers, boxPlotNotch):
+def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, graphSlidersButtonNClicks:int, boxPlotMean, boxPlotOutliers, boxPlotNotch):
 	"""
 	updates the graph based on the chosen data fields, data filters,
 	and graph type
@@ -841,7 +847,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
-		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
+		margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks+1) else 0), #TODO adapt left padding to length of labels
 		height=500,
 		titlefont=dict(size=14),
 		)
@@ -984,7 +990,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				trace['fill'] = 'tonexty' #TEMP
+				trace['fill'] = 'tonexty'
 				# trace['fill'] = 'tozeroy'
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
