@@ -459,15 +459,12 @@
 		}
 	});
 
-	extraButtons = [downloadBtn, customizeDataBtn, rangeToZeroButton, fullscreenbutton];
-	console.log(extraButtons);
+	extraButtons = [customizeDataBtn, downloadBtn, rangeToZeroButton, fullscreenbutton];
 	$(document).on("mousemove", () => {
 		if (!drawingIsAllowed()) {
 			const buttons = document.querySelector(".modebar-group");
 			if (buttons && !buttons.contains(extraButtons[0])) {
-				extraButtons.forEach((button) => {
-					buttons.appendChild(button);
-				});
+				extraButtons.forEach(button => buttons.appendChild(button));
 			}
 		}
 	});

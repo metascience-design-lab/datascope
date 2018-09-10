@@ -398,7 +398,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/4f036cc8c9d2443131f32cb1e3bc374b114cd336/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/8dc4ce3d3ca287bc067821238cc3356fe6c49129/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -810,10 +810,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	"""
 
 	graphConfig = dict(
-		modeBarButtonsToRemove=["sendDataToCloud", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian", "toggleHover", "select2d", "lasso2d"],
+		modeBarButtonsToRemove=["toImage", "sendDataToCloud", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian", "toggleHover", "select2d", "lasso2d"],
 		displaylogo=False,
 		displayModeBar="hover",
-		# fillFrame=True,
 		)
 
 	# turn the position on the graph type slider into a graph type name
