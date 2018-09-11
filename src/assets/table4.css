@@ -1,7 +1,7 @@
 .table-format {
 	border: solid;
 	border-color: white;
-	font-size: 18px;
+	font-size: 17px;
 	font-family: "Times New Roman", Times, serif;
 	/*overflow: auto;*/
 }
@@ -16,6 +16,7 @@ table th {
 
 table td {
 	/*border-top: solid;*/
+	/*width: 150px;*/
 	border-bottom: solid;
 	/*border-top-color: black;*/
 	border-bottom-color: black;
@@ -24,10 +25,10 @@ table td {
 }
 
 .frame {
-	max-width: 800px;
-	top: 0px;
-	left: 0px;
-	transform: translate(12%, 10%);
+	max-width: 900px;
+	top: 50px;
+	left: 50px;
+	
 	overflow: auto;
 	background-color: white;
 	position: absolute;

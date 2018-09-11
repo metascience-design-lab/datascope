@@ -1105,9 +1105,10 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# convert the data being plotted into numbers
 		print(tableHeaders)
 		print(traceValues)
+		print(categories)
 		return [
-			# TODO: don't display graph but only the settings buttons.
-			# dcc.Graph(id=GRAPH_ID, style={'display': 'none'}, config=graphConfig),
+			# TODO: don't display graph but only the settings buttons & the slider keeps going back to Basic Parametric
+			# dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 			html.Div(className="frame",children=[
 				html.Table(className="table-format",
 			   		children=[
