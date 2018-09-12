@@ -420,7 +420,7 @@ INITIAL_LAYOUT = html.Div(children=[
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
-	], style={'maxWidth':'1200px',
+	], style={'maxWidth':'900px',
 			  'padding-left':'0px', 'padding-right':'110px',
 			  'user-select':'none', '-ms-user-select':'none',
 			  '-moz-user-select':'none', '-webkit-user-select':'none',
