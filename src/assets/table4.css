@@ -3,7 +3,7 @@
 	border-color: white;
 	font-size: 17px;
 	font-family: "Times New Roman", Times, serif;
-	/*overflow: auto;*/
+	margin: 0 auto;
 }
 table th {
 	/*border-top: solid;*/
@@ -25,10 +25,9 @@ table td {
 }
 
 .frame {
-	max-width: 900px;
+	width: 800px;
 	top: 50px;
-	left: 50px;
-	
+	width: 100%;
 	overflow: auto;
 	background-color: white;
 	position: absolute;
