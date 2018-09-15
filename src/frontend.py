@@ -1106,9 +1106,16 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		print(tableHeaders)
 		print(traceValues)
 		print(categories)
+		# dummy value for displaying settings buttons
+		traces = [
+			go.Scatter(
+				x=0,
+				y=0
+			)
+		]
 		return [
 			# TODO: don't display graph but only the settings buttons & the slider keeps going back to Basic Parametric
-			# dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
+			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 			html.Div(className="frame",children=[
 				html.Table(className="table-format",
 			   		children=[
