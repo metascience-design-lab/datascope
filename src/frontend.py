@@ -36,12 +36,12 @@ if __name__ == '__main__': # if using the local machine as the web server
 INITIAL_GRAPHTYPE = 'Density Plot'
 
 # imports graphing and page layout libraries
-import dash
+import dash # ==0.22.0
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-import grasia_dash_components as gdc #==0.3.0
+import grasia_dash_components as gdc # ==0.3.0
 from plotly import tools as plotlyTools
 from dash.dependencies import Input, Output, State
 import json
@@ -429,15 +429,12 @@ INITIAL_LAYOUT = html.Div(children=[
 	)
 
 # creates the "app" helper variable
-app = dash.Dash()
+app = dash.Dash(__name__)
 app.layout = INITIAL_LAYOUT
 server = app.server
 app.scripts.append_script({"external_url":"https://code.jquery.com/jquery-1.11.0.min.js"})
 app.title = WEBAPP_TITLE
 app.css.append_css(dict(external_url=CSS_URL))
-app.css.append_css(dict(external_url=
-	'https://rawgit.com/MasalaMunch/db53bfa58350aa4a969aeba5689d086e/raw/91a981060206189f1da3441dc55e68c18417a3ae/statscope.css'
-	))
 
 @app.callback(
 	Output("rangeToZeroIndicator", "children"),
@@ -524,7 +521,7 @@ def updateDataFieldSelector(fileContents:str, filename:str):
 			list(csv.reader(io.StringIO(base64.b64decode(fileContents.split(',')[1]).decode("utf-8"))))[0]
 			],
 		multi=True,
-		value=["rktProcedural", "rktConceptual"] if filename=="ind-diff-regression.csv" else [],
+		value=["rktProcedural"] if filename=="ind-diff-regression.csv" else [],
 		placeholder='',
 		)]
 
@@ -553,7 +550,7 @@ def updateDataGroupFieldSelector(fileContents:str, filename:str):
 			list(csv.reader(io.StringIO(base64.b64decode(fileContents.split(',')[1]).decode("utf-8"))))[0]
 			] + [{"label":'None',"value":''}],
 		multi=False,
-		value='',
+		value="rktProceduralStrategy" if filename=="ind-diff-regression.csv" else "",
 		placeholder='',
 		)]
 
@@ -1149,19 +1146,30 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for e in tableHolder[0]:
 			categories.append(e)
 
-		traces = [
-			go.Table(
-				header = dict(values = (tableHeaders),
-							  align = ['left','right']),
-				cells = dict(values = (categories),
-							 align = ['left','right'])
-				)
-		]
-
-		if not showDataBoolean:
-			traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
-
 		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
+		
+		#TODO hide row values to avoid spoilers
+		# if not showDataBoolean:
+		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
+
+		return [
+			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
+			html.Div(className="frame", children=[
+				html.Table(className="table-format",
+			   		children=[
+				   		html.Thead(
+					   		html.Tr(children=[html.Th(col) for col in tableHeaders])
+				   		),
+				   		html.Tbody(className="table-body",
+			   				children=[
+								html.Td(children=[html.Tr(data) for data in th])
+								for th in categories
+								]
+				   			)
+			   			])
+				])
+			]
+
 
 	elif graphType == 'Box Plot':
 
