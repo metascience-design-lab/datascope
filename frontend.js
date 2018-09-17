@@ -234,6 +234,8 @@
 
 		$(document).dblclick(function(e) {
 			if (isWithinPlotBorder(e)) {
+				document.getElementById("canvasSimple").style.zIndex = "-100";
+				document.getElementById("graph_container_container").style.zIndex = "100";
 				document.getElementById("showDataButton").dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
 			}
 		});

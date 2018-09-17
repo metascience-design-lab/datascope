@@ -1,1 +1,1 @@
-web: gunicorn src.frontend:server
+web: gunicorn frontend:server
