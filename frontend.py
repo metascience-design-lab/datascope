@@ -1157,8 +1157,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# if not showDataBoolean:
 		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
 
-		print(tableHolder, file=sys.stderr) #TEMP
-
 		return [
 			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 			html.Div(className="frame", children=[
