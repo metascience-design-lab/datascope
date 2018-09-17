@@ -270,6 +270,7 @@ INITIAL_LAYOUT = html.Div(children=[
 			],
 		style=dict(
 			paddingLeft="40px",
+			paddingRight="40px",
 			position="relative",
 			top="100px",
 			left="40px",
@@ -416,7 +417,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/ae4b3c563c424b897ad8aa0590b6eeb0713ce442/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/f1d5a02f0e3a7223d3a11cbaa261780e4ef6874b/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens

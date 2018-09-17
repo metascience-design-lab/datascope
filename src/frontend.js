@@ -1,4 +1,4 @@
-	var canvasWidth = 1200;
+	var canvasWidth = 1100;
 	var canvasHeight = 500;
 	var curColor = "#000000";
 	var radius = 3;
