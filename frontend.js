@@ -35,7 +35,7 @@
 	}
 
 	function getY(clickEvent, offsetTop) {
-		return clickEvent.pageY - offsetTop;
+		return clickEvent.pageY - offsetTop - 25; // part of preventing iframe cutoff of top of web page
 	}
 
 	function isOdd(n) {

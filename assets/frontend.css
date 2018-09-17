@@ -22,3 +22,8 @@
 	right: 25px !important;
 	top: -8px;
 }
+
+#canvasSimple {
+	transform: translate(0, 10px);
+	/*^ part of preventing cutoff when embedding into an iframe*/
+}
