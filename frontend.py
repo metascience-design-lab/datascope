@@ -1128,10 +1128,10 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
 
-		for name in traceNames:
+		for name in reversed(traceNames):
 			tableHeaders.append(name)
 
-		for row in traceValues:
+		for row in reversed(traceValues):
 			tableNumber.append(len(row))
 			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
 			tableAverage.append(round(sum(row)/len(row),1))
@@ -1145,7 +1145,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			tableSkew.append(round(scipyStats.skew(row),1))
 			tableKurtosis.append(round(scipyStats.kurtosis(row),1))
 
-		tableHolder.append(list(map(list, zip(*thingsToZip))))
+		tableHolder.append(tableHeaders)
+		for thing in thingsToZip:
+			tableHolder.append(thing)
 		for e in tableHolder[0]:
 			categories.append(e)
 
@@ -1155,19 +1157,24 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# if not showDataBoolean:
 		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
 
+		print(tableHolder, file=sys.stderr) #TEMP
+
 		return [
 			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 			html.Div(className="frame", children=[
-				html.Table(className="table-format",
+				html.Table(
+					className="table-format",
 			   		children=[
 				   		html.Thead(
-					   		html.Tr(children=[html.Th(col) for col in tableHeaders])
+					   		html.Tr(children=[html.Th(th) for th in ['']+categories[0]])
 				   		),
-				   		html.Tbody(className="table-body",
+				   		html.Tbody(
+				   			className="table-body",
 			   				children=[
 								html.Td(children=[html.Tr(data) for data in th])
-								for th in categories
-								]
+								for th in tableHolder
+								],
+							style={'opacity':'' if showDataBoolean else '0'},
 				   			)
 			   			])
 				])
