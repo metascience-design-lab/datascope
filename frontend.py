@@ -1075,6 +1075,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				opacity=0.6,
 				side='both', 
 				bandwidth=tuningSliderValue,
+				hoverinfo="x",
+				hoveron="points+kde",
 				)
 			for tName,values in zip(traceNames,traceValues)
 			]
