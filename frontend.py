@@ -914,7 +914,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				trace['opacity'] = 0.6
+				trace['opacity'] = 1.0
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
 			for trace in graphFigure.data:
@@ -989,9 +989,11 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				trace['fill'] = 'tonexty'
-				# trace['fill'] = 'tozeroy'
+				print(trace, file=sys.stderr) #TEMP
+				# trace['fill'] = 'tonexty'
+				trace['fill'] = 'tozeroy'
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+				trace['fillcolor'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
@@ -1072,7 +1074,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				type='violin',
 				name=tName,
 				x=values,
-				opacity=0.6,
+				# opacity=0.6,
 				side='both', 
 				bandwidth=tuningSliderValue,
 				hoverinfo="x",
@@ -1185,7 +1187,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			go.Box(
 				name=tName,
 				x=values,
-				opacity=0.6,
+				# opacity=0.6,
 				notched=isToggledOn(boxPlotNotch),
 				boxpoints="outliers" if isToggledOn(boxPlotOutliers) else False,
 				boxmean=isToggledOn(boxPlotMean),
@@ -1289,7 +1291,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				name=tName,
 				x=[sum(values)/len(values)],
 				y=[tName],
-				opacity=0.6,
+				# opacity=0.6,
 				marker=dict(
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
 					),
