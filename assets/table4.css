@@ -23,8 +23,15 @@ table th {
 	text-align: right;
 
 }
+
+
+.table td:first-child {
+    text-align: left;
+}​
+
  table td {
 	/*border-top: solid;*/
+
 	width: 100%;
 	border-bottom: solid;
 	/*border-top-color: black;*/
