@@ -4,7 +4,7 @@
 	border: solid;
 	border-color: white;
 	font-size: 17px;
-	font-family: "Arial", Times New Roman, serif;
+	font-family: "Times New Roman", "Arial", serif;
 	border-bottom: solid;
 	border-bottom:black;
 	border-bottom-width: 2.5px;
@@ -20,7 +20,7 @@ table th {
 	border-bottom-width: 2.5px;
 	font-weight: normal;
 	font-style: italic;
-	text-align: center;
+	text-align: right;
 
 }
  table td {
