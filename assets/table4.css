@@ -4,9 +4,9 @@
 	border: solid;
 	border-color: white;
 	font-size: 17px;
-	font-family: "Times New Roman", "Arial", serif;
+	font-family: "Arial", "Times New Roman", serif;
 	border-bottom: solid;
-	border-bottom:black;
+	border-bottom: black;
 	border-bottom-width: 2.5px;
 	margin: 20px auto;
 }
