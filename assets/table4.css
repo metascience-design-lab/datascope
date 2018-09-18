@@ -4,7 +4,7 @@
 	border: solid;
 	border-color: white;
 	font-size: 17px;
-	font-family: "Times New Roman", Times, serif;
+	font-family: "Arial", Times New Roman, serif;
 	border-bottom: solid;
 	border-bottom:black;
 	border-bottom-width: 2.5px;
@@ -18,6 +18,8 @@ table th {
 	border-bottom-color: black;
 	border-top-width: 2.5px;
 	border-bottom-width: 2.5px;
+	text-align: left;
+
 }
  table td {
 	/*border-top: solid;*/
@@ -27,6 +29,8 @@ table th {
 	border-bottom-color: black;
 	/*border-top-width: 2.5px;*/
 	border-bottom-width: 2.5px;
+	text-align: right;
+
 }
  .frame {
  	padding-left: 70px;
