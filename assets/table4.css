@@ -15,8 +15,8 @@ table th {
 	border-bottom: solid;
 	/*border-top-color: black;*/
 	border-bottom-color: black;
-	/*border-top-width: 2.5px;*/
-	border-bottom-width: 2.5px;
+	/*border-top-width: 1.5px;*/
+	border-bottom-width: 3px;
 }
  table td {
 	/*border-top: solid;*/
@@ -24,8 +24,8 @@ table th {
 	border-bottom: solid;
 	/*border-top-color: black;*/
 	border-bottom-color: black;
-	/*border-top-width: 2.5px;*/
-	border-bottom-width: 2.5px;
+	/*border-top-width: 1.5px;*/
+	border-bottom-width: 1.5px;
 }
  .frame {
  	padding-left: 70px;
