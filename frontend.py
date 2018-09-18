@@ -1301,6 +1301,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					array=[getError(values)],
 					),
 				orientation='h',
+				hoverinfo='x',
 				)
 
 			for i,(tName,values) in enumerate(zip(traceNames,traceValues))
