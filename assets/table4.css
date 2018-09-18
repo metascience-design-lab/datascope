@@ -11,11 +11,12 @@
 	margin: 20px auto;
 }
 table th {
-	/*border-top: solid;*/
+	
+	border-top: solid;
 	border-bottom: solid;
-	/*border-top-color: black;*/
+	border-top-color: black;
 	border-bottom-color: black;
-	/*border-top-width: 2.5px;*/
+	border-top-width: 2.5px;
 	border-bottom-width: 2.5px;
 }
  table td {
