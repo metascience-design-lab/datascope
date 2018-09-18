@@ -729,6 +729,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 
 	instructions = ""
 	if showDataIndicator == "false":
+		multiplePlotsBoolean = (len(chosenDataFields) == 1  and dataGroupField == "")
 		instructions += "Make"
 		graphTypeName = GRAPHTYPE_CHOICES[graphType]
 		if graphTypeName == "Density Plot":
@@ -736,9 +737,9 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				graphTuningSliderIndex = 0
 			if DENSITY_CURVE_TYPES[int(graphTuningSliderIndex)] != "kde":
 				instructions += " normal"
-		if len(chosenDataFields) == 1:
+		if multiplePlotsBoolean:
 			instructions += " a"
-		instructions += " " + graphTypeName.lower() + ("" if len(chosenDataFields) == 1 else "s")
+		instructions += " " + graphTypeName.lower() + ("" if multiplePlotsBoolean else "s")
 		if graphTypeName == "Histogram":
 			instructions += " (bins = " + str(graphTuningSliderIndex) + ")"
 		if graphTypeName == "Violin Plot":
@@ -755,7 +756,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				instructions += " and"
 		if dataGroupField != '':
 			instructions += " (grouped by {})".format(dataGroupField)
-		instructions += '. Double-click ' + ('it' if len(chosenDataFields) == 1 else 'them') + ' to submit.'
+		instructions += '. Double-click ' + ('it' if multiplePlotsBoolean else 'them') + ' to submit.'
 	return [instructions]
 
 PLOTLY_DEFAULT_COLORS = [
@@ -842,8 +843,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
-		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		xaxis=dict(showline=True, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		yaxis=dict(showline=True, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
 		margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks+1) else 25), #TODO adapt left padding to length of labels
