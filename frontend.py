@@ -989,7 +989,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				print(trace, file=sys.stderr) #TEMP
 				# trace['fill'] = 'tonexty'
 				trace['fill'] = 'tozeroy'
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
