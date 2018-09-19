@@ -1118,16 +1118,16 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		tableKurtosis = []
 
 		if tableType == "Basic Parametric":
-			categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Maximum"]]
+			categories = [["N", "Minimum", "Mean", "SD", "Median", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableMaximum]
 		elif tableType == "Complete Parametric":
-			categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+			categories = [["N", "Minimum", "Mean", "SD", "Median", "Skewness", "Kurtosis", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
 		elif tableType == "Basic Nonparametric":
-			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Maximum"]]
+			categories = [["N", "Minimum", "Trimean", "SD", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMaximum]
 		elif tableType == "Complete Nonparametric":
-			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+			categories = [["N", "Minimum", "Trimean", "SD", "Median", "Skewness", "Kurtosis", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
 
 		for name in reversed(traceNames):
