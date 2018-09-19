@@ -25,20 +25,19 @@ table th {
 }
 
 
-.table td:first-child {
+table td:first-child {
     text-align: left;
-    border-bottom: solid;
-	/*border-top-color: black;*/
-	border-bottom-color: black;
-	/*border-top-width: 2.5px;*/
-	border-bottom-width: 2.5px;
 }​
 
  table td {
 	/*border-top: solid;*/
 
 	width: 100%;
-	
+	border-bottom: solid;
+	/*border-top-color: black;*/
+	border-bottom-color: black;
+	/*border-top-width: 2.5px;*/
+	border-bottom-width: 2.5px;
 	text-align: right;
 
 }
