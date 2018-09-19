@@ -25,10 +25,6 @@ table th {
 }
 
 
-table td:first-child {
-    text-align: left;
-}​
-
  table td {
 	/*border-top: solid;*/
 
