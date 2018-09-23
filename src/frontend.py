@@ -36,12 +36,12 @@ if __name__ == '__main__': # if using the local machine as the web server
 INITIAL_GRAPHTYPE = 'Density Plot'
 
 # imports graphing and page layout libraries
-import dash
+import dash # ==0.22.0
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-import grasia_dash_components as gdc #==0.3.0
+import grasia_dash_components as gdc # ==0.3.0
 from plotly import tools as plotlyTools
 from dash.dependencies import Input, Output, State
 import json
@@ -81,13 +81,13 @@ BOXPLOTINFO_CHOICES = [
 	]
 
 BARDOTPLOTERROR_CHOICES = [
-	"± 95% Confidence Interval",
-	"± Standard Deviation",
-	"± Standard Error",
+	"95% CI",
+	"SD",
+	"SEM",
 	]
 
-MIN_BINSIZE = 1
-MAX_BINSIZE = 20 # http://www.statisticshowto.com/choose-bin-sizes-statistics/
+MIN_BINSIZE = 1 # convert to percent before version 0.2 is launched
+MAX_BINSIZE = 20 # conert to percent before version 0.2 is launched; http://www.statisticshowto.com/choose-bin-sizes-statistics/
 
 # DRAWCONTROL_CHOICES = [
 # 	'Submit', # bottom choice
@@ -163,6 +163,10 @@ INITIAL_LAYOUT = html.Div(children=[
 				id='rangeToZeroButton',
 				n_clicks=0,
 				),
+			html.A(
+				id='graphSlidersButton',
+				n_clicks=0,
+				),
 			html.Div(
 				id='graphTypeIndicator',
 				children="Density Plot",
@@ -180,11 +184,11 @@ INITIAL_LAYOUT = html.Div(children=[
 					# whiteSpace="nowrap",
 					# overflow="hidden",
 					# textOverflow="ellipsis",
-					left="calc(50% + 30px)", #TODO adapt to adaptive left padding when implemented
+					left="calc(50% + 60px)", #TODO adapt to adaptive left padding when implemented
 					maxWidth="320px",
 					textAlign="center",
 					# top="calc(486px/2)",
-					top="40%",
+					top="55%",
 					transform="translate(-50%, -50%)",
 					),
 				children=[
@@ -239,10 +243,11 @@ INITIAL_LAYOUT = html.Div(children=[
 						),
 					],
 				style={
+					'display': 'none',
 					'position': 'absolute',
-					'height': '295',
+					'height': '395',
 					'right': '-20',
-					'bottom': '82',
+					'bottom': '-18',
 					},
 				),
 			],
@@ -265,10 +270,24 @@ INITIAL_LAYOUT = html.Div(children=[
 			],
 		style=dict(
 			paddingLeft="40px",
+			paddingRight="40px",
+			position="relative",
+			top="100px",
+			left="40px",
 			),
 		),
 
-	# 3 line breaks
+	# 6 line breaks
+	dcc.Markdown('''
+&nbsp;
+		'''),
+	dcc.Markdown('''
+&nbsp;
+		'''),
+
+	dcc.Markdown('''
+&nbsp;
+		'''),
 	dcc.Markdown('''
 &nbsp;
 		'''),
@@ -398,14 +417,15 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/ef9212021b7de605562ab284713e37f07d7e9e97/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/09364c798ae52fa280c16f0124beb2ced7ccb17f/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
-	], style={'maxWidth':'1000px',
+	], style={'maxWidth':'1100px',
 			  'padding-left':'0px', 'padding-right':'110px',
 			  'user-select':'none', '-ms-user-select':'none',
 			  '-moz-user-select':'none', '-webkit-user-select':'none',
+			  'position':'relative', 'top':'10px', #prevent iframe embed cutoff
 			  }
 	)
 
@@ -416,9 +436,6 @@ server = app.server
 app.scripts.append_script({"external_url":"https://code.jquery.com/jquery-1.11.0.min.js"})
 app.title = WEBAPP_TITLE
 app.css.append_css(dict(external_url=CSS_URL))
-app.css.append_css(dict(external_url=
-	'https://rawgit.com/MasalaMunch/db53bfa58350aa4a969aeba5689d086e/raw/87acfae74b5bfff91a295a0f90458ae796d54cc9/statscope.css'
-	))
 
 @app.callback(
 	Output("rangeToZeroIndicator", "children"),
@@ -505,7 +522,7 @@ def updateDataFieldSelector(fileContents:str, filename:str):
 			list(csv.reader(io.StringIO(base64.b64decode(fileContents.split(',')[1]).decode("utf-8"))))[0]
 			],
 		multi=True,
-		value=["rktProcedural", "rktConceptual"] if filename=="ind-diff-regression.csv" else [],
+		value=["rktProcedural"] if filename=="ind-diff-regression.csv" else [],
 		placeholder='',
 		)]
 
@@ -534,7 +551,7 @@ def updateDataGroupFieldSelector(fileContents:str, filename:str):
 			list(csv.reader(io.StringIO(base64.b64decode(fileContents.split(',')[1]).decode("utf-8"))))[0]
 			] + [{"label":'None',"value":''}],
 		multi=False,
-		value='',
+		value="rktProceduralStrategy" if filename=="ind-diff-regression.csv" else "",
 		placeholder='',
 		)]
 
@@ -641,18 +658,19 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 			]
 
 	elif graphType == "Table":
+
 		return [
-				dcc.Slider(
-					id="graphTuning_slider",
-					min=0,
-					max=3,
-					value=0,
-					marks={i:{"label":e, "style":{"transform":"translate(0,10px)"}} for i,e in enumerate(TABLEINFO_CHOICES)},
-					step=None,
-					included=False,
-					vertical=True,
-				),
-		  ]
+			dcc.Slider(
+				id="graphTuning_slider",
+				min=0,
+				max=3,
+				value=0,
+				marks={i:{"label":e, "style":{"transform":"translate(0,10px)"}} for i,e in enumerate(TABLEINFO_CHOICES)},
+				step=None,
+				included=False,
+				vertical=True,
+				)
+			]
 
 	elif graphType == 'Box Plot':
 
@@ -711,6 +729,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 
 	instructions = ""
 	if showDataIndicator == "false":
+		multiplePlotsBoolean = (len(chosenDataFields) == 1  and dataGroupField == "")
 		instructions += "Make"
 		graphTypeName = GRAPHTYPE_CHOICES[graphType]
 		if graphTypeName == "Density Plot":
@@ -718,9 +737,9 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				graphTuningSliderIndex = 0
 			if DENSITY_CURVE_TYPES[int(graphTuningSliderIndex)] != "kde":
 				instructions += " normal"
-		if len(chosenDataFields) == 1:
+		if multiplePlotsBoolean:
 			instructions += " a"
-		instructions += " " + graphTypeName.lower() + ("" if len(chosenDataFields) == 1 else "s")
+		instructions += " " + graphTypeName.lower() + ("" if multiplePlotsBoolean else "s")
 		if graphTypeName == "Histogram":
 			instructions += " (bins = " + str(graphTuningSliderIndex) + ")"
 		if graphTypeName == "Violin Plot":
@@ -737,7 +756,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 				instructions += " and"
 		if dataGroupField != '':
 			instructions += " (grouped by {})".format(dataGroupField)
-		instructions += '. Double-click ' + ('it' if len(chosenDataFields) == 1 else 'them') + ' to submit.'
+		instructions += '. Double-click ' + ('it' if multiplePlotsBoolean else 'them') + ' to submit.'
 	return [instructions]
 
 PLOTLY_DEFAULT_COLORS = [
@@ -752,7 +771,7 @@ PLOTLY_DEFAULT_COLORS = [
 	# '#7f7f7f',  # middle gray
 	# '#bcbd22',  # curry yellow-green
 	# '#17becf',  # blue-teal
-    
+
     '#8dd3c7' , # R Color Brewer - Set 3 (Pastel)
     '#fb8072',  # R Color Brewer - Set 3 (Pastel)
     '#bebada',  # R Color Brewer - Set 3 (Pastel)
@@ -765,26 +784,26 @@ PLOTLY_DEFAULT_COLORS = [
 	'#ffffb3',  # R Color Brewer - Set 3 (Pastel)
 
 
-	#'#440154FF', # viridis 1
-	#'#39568CFF', # viridis 2
-	#'#1F968BFF', # viridis 3
-	#'#73D055FF', # viridis 4
-	#'#481567FF', # viridis 5
-	#'#33638DFF', # viridis 6
-	#'#20A387FF', # viridis 7
-	#'#95D840FF', # viridis 8
-	#'#482677FF', # viridis 9
-	#'#2D708EFF', # viridis 10
-	#'#29AF7FFF', # viridis 11
-	#'#B8DE29FF', # viridis 12
-	#'#453781FF', # viridis 13
-	#'#287D8EFF', # viridis 14
-	#'#3CBB75FF', # viridis 15
-	#'#DCE319FF', # viridis 16
-	#'#404788FF', # viridis 17
-	#'#238A8DFF', # viridis 18
-	#'#55C667FF', # viridis 19
-	#'#FDE725FF', # viridis 20
+	# '#440154FF', # viridis 1
+	# '#39568CFF', # viridis 2
+	# '#1F968BFF', # viridis 3
+	# '#73D055FF', # viridis 4
+	# '#481567FF', # viridis 5
+	# '#33638DFF', # viridis 6
+	# '#20A387FF', # viridis 7
+	# '#95D840FF', # viridis 8
+	# '#482677FF', # viridis 9
+	# '#2D708EFF', # viridis 10
+	# '#29AF7FFF', # viridis 11
+	# '#B8DE29FF', # viridis 12
+	# '#453781FF', # viridis 13
+	# '#287D8EFF', # viridis 14
+	# '#3CBB75FF', # viridis 15
+	# '#DCE319FF', # viridis 16
+	# '#404788FF', # viridis 17
+	# '#238A8DFF', # viridis 18
+	# '#55C667FF', # viridis 19
+	# '#FDE725FF', # viridis 20
 	]
 
 from collections import defaultdict
@@ -799,20 +818,20 @@ from collections import defaultdict
 	 Input("uploaded_fileAsJson", "children"),
 	 Input("graphTuning_slider", "value"),
 	 Input("rangeToZeroIndicator", "children"),
-	 Input("showDataIndicator", "children")]
+	 Input("showDataIndicator", "children"),
+	 Input("graphSlidersButton", "n_clicks")]
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
 	)
-def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, boxPlotMean, boxPlotOutliers, boxPlotNotch):
+def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, graphSlidersButtonNClicks:int, boxPlotMean, boxPlotOutliers, boxPlotNotch):
 	"""
 	updates the graph based on the chosen data fields, data filters,
 	and graph type
 	"""
 
 	graphConfig = dict(
-		modeBarButtonsToRemove=["sendDataToCloud", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian", "toggleHover", "select2d", "lasso2d"],
+		modeBarButtonsToRemove=["toImage", "sendDataToCloud", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian", "toggleHover", "select2d", "lasso2d"],
 		displaylogo=False,
 		displayModeBar="hover",
-		# fillFrame=True,
 		)
 
 	# turn the position on the graph type slider into a graph type name
@@ -824,12 +843,12 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
-		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=6, tickwidth=2.75, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		xaxis=dict(showline=True, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
-		margin=dict(t=20, l=140), #TODO adapt left padding to length of labels
-		height=400,
+		margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks+1) else 25), #TODO adapt left padding to length of labels
+		height=500,
 		titlefont=dict(size=14),
 		)
 	if rangeToZeroBoolean:
@@ -882,7 +901,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single variable without errors
-		
+
 		if tuningSliderValue is None or tuningSliderValue < MIN_BINSIZE or tuningSliderValue > MAX_BINSIZE:
 			tuningSliderValue = 1
 		try:
@@ -896,19 +915,19 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
-				trace['opacity'] = 0.6
+				trace['opacity'] = 1.0
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
-		
+
 		ridgelineFigure = plotlyTools.make_subplots(
 			rows=len(traceValues),
 			cols=1,
 			specs=[[{}] for i in range(len(traceValues))],
-			shared_xaxes=True, 
+			shared_xaxes=True,
 			shared_yaxes=True,
-			vertical_spacing=0,
+			vertical_spacing=-.05,
 			)
 		for i,trace in enumerate(reversed(graphFigure.data)):
 			ridgelineFigure.append_trace(trace, i+1, 1)
@@ -956,8 +975,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
-				del traceValues[i] # can't plot the density of a single variable without errors
-		
+				del traceValues[i] # can't plot the density of a single data point without errors
+
 		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
 			tuningSliderValue = 0
 		try:
@@ -971,20 +990,49 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
+				# trace['fill'] = 'tonexty'
 				trace['fill'] = 'tozeroy'
 				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+				trace['fillcolor'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
 				trace['fillcolor'] = 'rgba(0,0,0,0)'
-		
+
+		#TEMP
+		# for trace in graphFigure.data:
+		# 	trace['hoverinfo'] = 'text'
+		# 	trace['hovertext'] = [ str(round(y,3))+" | "+trace['legendgroup'] for y in trace['y'] ]
+		# 	minY = min(trace['y'])
+		# 	trace['y'] = list(map(lambda y:y-minY, trace['y']))
+		# bottomLineTraces = [None]
+		# layout['yaxis']['tickmode'] = 'array'
+		# layout['yaxis']['ticktext'] = [ trace['legendgroup'] for trace in graphFigure.data ]
+		# layout['yaxis']['tickvals'] = []
+		# for i,trace in enumerate(graphFigure.data):
+		# 	if i > 0:
+		# 		prevMaxY = 0.9*max(graphFigure.data[i-1]['y'])
+		# 		bottomLineTraces.append({'type':'scatter', 'marker':{'color':'rgba(0,0,0,0)'}, 'x':[min(trace['x']), max(trace['x'])], 'y':[prevMaxY, prevMaxY]})
+		# 		trace['y'] = list(map(lambda y:y+prevMaxY, trace['y']))
+		# 	minY = min(trace['y'])
+		# 	layout['yaxis']['tickvals'].append(minY+(max(trace['y'])-minY)/2)
+		# for i in reversed(range(len(graphFigure.data))):
+		# 	if i > 0:
+		# 		graphFigure.data.insert(i, bottomLineTraces[i])
+		# layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+		# layout['yaxis']['title'] = ''
+		# graphFigure['layout'].update(layout)
+		# return [
+		# 	dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
+		# 	]
+
 		ridgelineFigure = plotlyTools.make_subplots(
 			rows=len(traceValues),
 			cols=1,
 			specs=[[{}] for i in range(len(traceValues))],
-			shared_xaxes=True, 
+			shared_xaxes=True,
 			shared_yaxes=True,
-			vertical_spacing=0,
+			vertical_spacing=-.05,
 			)
 		for i,trace in enumerate(reversed(graphFigure.data)):
 			ridgelineFigure.append_trace(trace, i+1, 1)
@@ -1005,8 +1053,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				xanchor='right',
 				x=-0.01,
 				yref='y'+(str(i+1) if (i > 0) else ''),
-				# possible speed improvement: if graphFigure.data[len(traceNames)-i-1]['y'] is sorted, can use [-1] instead of max()
-				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']), 
+				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']),
 				text=traceNames[len(traceNames)-i-1],
 				font=dict(size=14, family='Arial'),
 				showarrow=False,
@@ -1027,9 +1074,11 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				type='violin',
 				name=tName,
 				x=values,
-				opacity=0.6,
-				side='both', 
+				# opacity=0.6,
+				side='both',
 				bandwidth=tuningSliderValue,
+				hoverinfo="x",
+				hoveron="points+kde",
 				)
 			for tName,values in zip(traceNames,traceValues)
 			]
@@ -1069,72 +1118,78 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		tableKurtosis = []
 
 		if tableType == "Basic Parametric":
-			categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Maximum"]]
+			categories = [["N", "Minimum", "Mean", "SD", "Median", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableMaximum]
 		elif tableType == "Complete Parametric":
-			categories = [["N", "Minimum", "Mean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+			categories = [["N", "Minimum", "Mean", "SD", "Median", "Skewness", "Kurtosis", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableAverage, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
 		elif tableType == "Basic Nonparametric":
-			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Maximum"]]
+			categories = [["N", "Minimum", "Trimean", "SD", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMaximum]
 		elif tableType == "Complete Nonparametric":
-			categories = [["N", "Minimum", "Trimean", "Standard Deviation", "Median", "Skewness", "Kurtosis", "Maximum"]]
+			categories = [["N", "Minimum", "Trimean", "SD", "Median", "Skewness", "Kurtosis", "Maximum"]]
 			thingsToZip = [tableNumber, tableMinimum, tableTrimean, tableStd, tableMedian, tableSkew, tableKurtosis, tableMaximum]
 
-		for name in traceNames:
+		for name in reversed(traceNames):
 			tableHeaders.append(name)
 
-		for row in traceValues:
+		for row in reversed(traceValues):
 			tableNumber.append(len(row))
-			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 3)) #TODO decide how much to trim
-			tableAverage.append(round(sum(row)/len(row),3))
-			tableStd.append(round(np.std(row)/np.sqrt(len(row)),3))
-			tableError.append(round(scipyStats.sem(row),3))
-			tableMedian.append(round(np.median(row),3))
+			tableTrimean.append(round(scipyStats.trim_mean(row, 0.1), 1)) #TODO decide how much to trim
+			tableAverage.append(round(sum(row)/len(row),1))
+			tableStd.append(round(np.std(row)/np.sqrt(len(row)),1))
+			tableError.append(round(scipyStats.sem(row),1))
+			tableMedian.append(round(np.median(row),1))
 			tableMode.append(scipyStats.mode(row)[0][0])
 			tableMinimum.append(min(row))
 			tableMaximum.append(max(row))
-			tableRange.append(round(max(row)-min(row),3))
-			tableSkew.append(round(scipyStats.skew(row),3))
-			tableKurtosis.append(round(scipyStats.kurtosis(row),3))
+			tableRange.append(round(max(row)-min(row),1))
+			tableSkew.append(round(scipyStats.skew(row),1))
+			tableKurtosis.append(round(scipyStats.kurtosis(row),1))
 
-		tableHolder.append(list(map(list, zip(*thingsToZip))))
+		tableHolder.append(tableHeaders)
+		for thing in thingsToZip:
+			tableHolder.append(thing)
 		for e in tableHolder[0]:
 			categories.append(e)
 
-		# convert the data being plotted into numbers
-		print(tableHeaders)
-		print(traceValues)
-		print(categories)
-		# dummy value for displaying settings buttons
+		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
+		# print(tableHolder)
+		# print(categories)
+		#TODO hide row values to avoid spoilers
+		# if not showDataBoolean:
+		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
 		traces = [
 			go.Scatter(
 				x=0,
 				y=0
 			)
 		]
+
 		return [
-			# TODO: don't display graph but only the settings buttons & the slider keeps going back to Basic Parametric
 			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
-			html.Div(className="frame",children=[
-				html.Table(className="table-format",
+
+			html.Div(className="frame", children=[
+				html.H1(
+					"Statscope"
+				),
+				html.Table(
+					className="table-format",
 			   		children=[
 				   		html.Thead(
-					   		html.Tr(
-						   		children=[html.Th(col) for col in tableHeaders]
-					   		)
+					   		html.Tr(children=[html.Th(th) for th in ['']+categories[0]])
 				   		),
-				   		html.Tbody(className="table-body",
+				   		html.Tbody(
+				   			className="table-body",
 			   				children=[
-								html.Td(
-									children=[html.Tr(data) for data in th]
-								)
-							for th in categories]
+								html.Td(children=[html.Tr(data) for data in th])
+								for th in tableHolder
+								],
+							style={'opacity':'' if showDataBoolean else '0'},
 				   			)
 			   			])
 				])
-
-		]
+			]
 
 
 	elif graphType == 'Box Plot':
@@ -1143,7 +1198,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			go.Box(
 				name=tName,
 				x=values,
-				opacity=0.6,
+				# opacity=0.6,
 				notched=isToggledOn(boxPlotNotch),
 				boxpoints="outliers" if isToggledOn(boxPlotOutliers) else False,
 				boxmean=isToggledOn(boxPlotMean),
@@ -1167,13 +1222,13 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		tuningSliderValue = 0
 	errorBarType = BARDOTPLOTERROR_CHOICES[len(BARDOTPLOTERROR_CHOICES)-1-int(tuningSliderValue)]
 
-	if errorBarType == "± Standard Error":
+	if errorBarType == "SEM":
 		def getError(values):
 			return np.std(values)/np.sqrt(len(values))
-	elif errorBarType == "± Standard Deviation":
+	elif errorBarType == "SD":
 		def getError(values):
 			return np.std(values)/2
-	elif errorBarType == "± 95% Confidence Interval":
+	elif errorBarType == "95% CI":
 		def getError(values):
 			return 1.96*np.std(values)/np.sqrt(len(values))
 
@@ -1223,7 +1278,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ""
 		layout['yaxis']['type'] = 'category'
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['ticklen'] = 0
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 		layout['yaxis']['showgrid'] = True
@@ -1248,7 +1302,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				name=tName,
 				x=[sum(values)/len(values)],
 				y=[tName],
-				opacity=0.6,
+				# opacity=0.6,
 				marker=dict(
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
 					),
@@ -1260,6 +1314,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					array=[getError(values)],
 					),
 				orientation='h',
+				hoverinfo='x',
 				)
 
 			for i,(tName,values) in enumerate(zip(traceNames,traceValues))
@@ -1274,7 +1329,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ""
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['yaxis']['type'] = 'category'
-		layout['yaxis']['ticklen'] = 0
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 
@@ -1300,7 +1354,6 @@ def updateShowDataIndicator(nClicks:int, showDataIndicator:str):
 		return "false"
 	else:
 		return "true" if showDataIndicator=="false" else "false"
-
 
 if __name__ == '__main__': # if using the local machine as the web server
 

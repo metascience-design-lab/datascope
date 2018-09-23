@@ -1,39 +1,65 @@
 .table-format {
-	border: solid;
+	width: 90%;
+ 	/*padding-right: 70px;*/
+	/* border: solid; */
 	border-color: white;
 	font-size: 17px;
-	font-family: "Times New Roman", Times, serif;
-	border-bottom: solide;
-	border-bottom:black;
+	font-family: "Arial", "Times New Roman", serif;
+	border-top: solid black 1.5px;
+	border-bottom: solid;
+	border-bottom: black;
 	border-bottom-width: 1.5px;
-	margin: 20px auto;
+	margin: auto 50px;
+
 }
-table th {
+/* table  */
+th {
+	/* border: solid; */
+	border-top: solid;
+	border-bottom: solid;
+	border-top-color: black;
+	border-bottom-color: black;
+	border-top-width: 1.5px;
+	border-bottom-width: 1.5px;
+	font-weight: normal;
+	font-style: italic;
+	text-align: center;
+
+}
+
+
+ /* table  */
+ td {
 	/*border-top: solid;*/
+	/* width: 40px; */
+	/* width: 100%; */
+	
+	/* border: solid; */
 	border-bottom: solid;
 	/*border-top-color: black;*/
 	border-bottom-color: black;
-	/*border-top-width: 1.5px;*/
-	border-bottom-width: 3px;
+	/*border-top-width: 2.5px;*/
+	border-bottom-width: 2px;
+	text-align: right;
+	vertical-align: bottom;
 }
 
-table td {
-	/*border-top: solid;*/
-	/*width: 150px;*/
-	border-bottom: solid;
-	/*border-top-color: black;*/
-	border-bottom-color: black;
-	/*border-top-width: 1.5px;*/
-	border-bottom-width: 1.5px;
-}
+/* tr { */
+	/* text-align: center; */
+/* } */
 
-.frame {
-	width: 800px;
-	/*top: 50px;*/
+table tbody{
+	text-align: right;
+}
+ .frame {
+ 	padding-left: 70px;
+	max-width: 1000px;
+	
+	position: absolute;
 	width: 100%;
-	height: 400px;
+	height: 450px;
 	overflow: auto;
 	background-color: white;
-	position: absolute;
-
-}
+	white-space: nowrap;
+	transform : translate(15px, 10px);
+ } 
