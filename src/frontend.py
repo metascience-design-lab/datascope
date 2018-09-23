@@ -1153,6 +1153,20 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for e in tableHolder[0]:
 			categories.append(e)
 
+		DummyLayout = dict(
+			paper_bgcolor='rgba(0,0,0,0)',
+			plot_bgcolor='rgba(0,0,0,0)',
+			xaxis=dict(showline=True, zeroline=False, fixedrange=True, showgrid=False, ticks='outside', tickmode="auto", nticks=6, ticklen=5.75, tickwidth=2.4,
+					   tickcolor='darkgray', tickfont=dict(size=14, family="Arial")),
+			yaxis=dict(showline=False, zeroline=False, fixedrange=True, showgrid=False, ticks='outside',
+					   ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont=dict(size=14, family="Arial")),
+			legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
+			showlegend=False,
+			margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks + 1) else 25),
+			# TODO adapt left padding to length of labels
+			height=500,
+			titlefont=dict(size=14),
+		)
 		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
 		# print(tableHolder)
 		# print(categories)
@@ -1167,7 +1181,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		]
 
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
+			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout = DummyLayout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 
 			html.Div(className="frame", children=[
 				html.H1(
