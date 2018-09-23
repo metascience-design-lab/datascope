@@ -930,6 +930,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			vertical_spacing=-.05,
 			)
 		for i,trace in enumerate(reversed(graphFigure.data)):
+			trace['hoverinfo'] = 'none'
 			ridgelineFigure.append_trace(trace, i+1, 1)
 
 		# for name,values in zip(reversed(traceNames), reversed(traceValues)): #TEMP
@@ -938,7 +939,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		#TODO fix drawing instructions
 		# layout['showlegend'] = True
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['hoverformat'] = '.3f'
+		# layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
 		layout['yaxis']['ticks'] = ''
 		layout['yaxis']['title'] = ''
@@ -1035,6 +1036,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			vertical_spacing=-.05,
 			)
 		for i,trace in enumerate(reversed(graphFigure.data)):
+			trace['hoverinfo'] = 'none'
 			ridgelineFigure.append_trace(trace, i+1, 1)
 
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
@@ -1077,7 +1079,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				# opacity=0.6,
 				side='both', 
 				bandwidth=tuningSliderValue,
-				hoverinfo="x",
+				hoverinfo="none",
 				hoveron="points+kde",
 				)
 			for tName,values in zip(traceNames,traceValues)
@@ -1191,6 +1193,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				notched=isToggledOn(boxPlotNotch),
 				boxpoints="outliers" if isToggledOn(boxPlotOutliers) else False,
 				boxmean=isToggledOn(boxPlotMean),
+				hoverinfo='none',
 				)
 			for tName,values in zip(traceNames,traceValues)
 			]
@@ -1252,6 +1255,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					size = 10,
 					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
 					),
+				hoverinfo='none',
 				# orientation='h',
 				)
 
@@ -1303,7 +1307,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					array=[getError(values)],
 					),
 				orientation='h',
-				hoverinfo='x',
+				hoverinfo='none',
 				)
 
 			for i,(tName,values) in enumerate(zip(traceNames,traceValues))

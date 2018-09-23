@@ -1,6 +1,8 @@
 * {
+	outline: none;
+	/*^ prevents blue boxe from appearing around slider handle in chrome*/
 	touch-action: manipulation;
-	/*^ allows double-click-to-show-data gesture to work on touch screens*/
+	/*^ disables double-click-to-zoom gesture on touch screens*/
 }
 
 ._dash-undo-redo {
