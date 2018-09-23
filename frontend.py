@@ -411,14 +411,14 @@ INITIAL_LAYOUT = html.Div(children=[
 	# 	style={
 	# 		"display":"none"
 	# 		},
-	# 	),
+	# 	), 
 
 	#line break
 	dcc.Markdown('''
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/ea9295b3eb94ee8d88649cd4dc429c145c465b7a/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/9124d5e12b889e04b319456232e797a42a37f667/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens

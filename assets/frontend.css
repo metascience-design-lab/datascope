@@ -15,11 +15,6 @@
 	transform: translate(-40%, 40%);
 }
 
-.nsewdrag {
-	/*stroke: darkgrey;*/
-	/*stroke-width: 2px !important;*/
-}
-
 .modebar {
 	background-color: rgba(0,0,0,0) !important;
 }
