@@ -1,6 +1,6 @@
 * {
 	outline: none;
-	/*^ prevents blue boxe from appearing around slider handle in chrome*/
+	/*^ prevents blue boxes from appearing around slider handles in chrome*/
 	touch-action: manipulation;
 	/*^ disables double-click-to-zoom gesture on touch screens*/
 }

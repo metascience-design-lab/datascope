@@ -199,6 +199,7 @@ INITIAL_LAYOUT = html.Div(children=[
 				id='graph_container',
 				style=dict(
 					position='relative',
+					opacity='0',
 					zIndex='-1',
 					),
 				children=[
