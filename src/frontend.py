@@ -1187,6 +1187,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				html.H1(
 					"Statscope"
 				),
+				html.P("Table : ind-diff-regression", style={'textAlign' : 'center', 'font-size' : '20pt'}),
 				html.Table(
 					className="table-format",
 			   		children=[
@@ -1199,6 +1200,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 								html.Td(children=[html.Tr(data) for data in th])
 								for th in tableHolder
 								],
+
 							style={'opacity':'' if showDataBoolean else '0'},
 				   			)
 			   			])
