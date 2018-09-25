@@ -493,11 +493,10 @@
 	});
 
 	const ___plotBorderStylesheet = document.styleSheets[7];
-	const __updatePlotBorderStylesheet = _ => (
-		___plotBorderStylesheet.disabled = (
-			["Histogram", "Density Plot"].includes(getGraphType())
-			)
-		);
-	__updatePlotBorderStylesheet();
-	const _graphTypeObserver = new MutationObserver(__updatePlotBorderStylesheet);
+	const __updatePlotBorderStyles = _ => {
+		___plotBorderStylesheet.disabled = ["Histogram","Density Plot"].includes(getGraphType());
+
+	};
+	__updatePlotBorderStyles();
+	const _graphTypeObserver = new MutationObserver(__updatePlotBorderStyles);
 	_graphTypeObserver.observe(document.getElementById('graphTypeIndicator'), {attributes: true, childList: true, characterData: true, subtree: true});

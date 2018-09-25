@@ -86,8 +86,9 @@ BARDOTPLOTERROR_CHOICES = [
 	"SEM",
 	]
 
-MIN_BINSIZE = 1 # convert to percent before version 0.2 is launched
-MAX_BINSIZE = 20 # conert to percent before version 0.2 is launched; http://www.statisticshowto.com/choose-bin-sizes-statistics/
+MIN_BINS = 1
+MAX_BINS = 20 # http://www.statisticshowto.com/choose-bin-sizes-statistics/
+DEFAULT_BINS = 5
 
 # DRAWCONTROL_CHOICES = [
 # 	'Submit', # bottom choice
@@ -418,7 +419,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/9124d5e12b889e04b319456232e797a42a37f667/statscope.js"),
+	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/db21df19201571f1b94fb4884791a7e9ff6f5dcb/statscope.js"),
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -586,15 +587,15 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 
 	if graphType == "Histogram":
 
-		marks = {i:str(i) for i in range(MIN_BINSIZE+4,MAX_BINSIZE+5,5)}
-		marks[MIN_BINSIZE] = {"label":"Bins: "+str(MIN_BINSIZE), "style":noWrapStyle}
+		marks = {i:str(i) for i in range(MIN_BINS+4,MAX_BINS+5,5)}
+		marks[MIN_BINS] = {"label":"Bins: "+str(MIN_BINS), "style":noWrapStyle}
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
-				min=MIN_BINSIZE,
-				max=MAX_BINSIZE,
+				min=MIN_BINS,
+				max=MAX_BINS,
 				marks=marks,
-				value=MIN_BINSIZE,
+				value=DEFAULT_BINS,
 				step=1,
 				vertical=True,
 				included=False,
@@ -844,7 +845,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=True, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
@@ -903,8 +904,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single variable without errors
 		
-		if tuningSliderValue is None or tuningSliderValue < MIN_BINSIZE or tuningSliderValue > MAX_BINSIZE:
-			tuningSliderValue = 1
+		if tuningSliderValue is None or tuningSliderValue < MIN_BINS or tuningSliderValue > MAX_BINS:
+			tuningSliderValue = DEFAULT_BINS
 		try:
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
@@ -940,6 +941,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		#TODO fix drawing instructions
 		# layout['showlegend'] = True
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
+		layout['xaxis']['showline'] = True
 		# layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
 		layout['yaxis']['ticks'] = ''
@@ -1043,6 +1045,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
+		layout['xaxis']['showline'] = True
 		layout['yaxis']['ticks'] = ''
 		layout['yaxis']['title'] = ''
 		ridgeLayout = ridgelineFigure['layout']
