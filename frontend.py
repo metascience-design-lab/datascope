@@ -86,10 +86,6 @@ BARDOTPLOTERROR_CHOICES = [
 	"SEM",
 	]
 
-MIN_BINS = 1
-MAX_BINS = 20 # http://www.statisticshowto.com/choose-bin-sizes-statistics/
-DEFAULT_BINS = 5
-
 # DRAWCONTROL_CHOICES = [
 # 	'Submit', # bottom choice
 # 	'Reset',
@@ -587,16 +583,41 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 
 	if graphType == "Histogram":
 
-		marks = {i:str(i) for i in range(MIN_BINS+4,MAX_BINS+5,5)}
-		marks[MIN_BINS] = {"label":"Bins: "+str(MIN_BINS), "style":noWrapStyle}
+		dataSetFromJson = json.loads(csvAsJson)
+
+		if dataGroupField == '':
+			groupedDataSets = {'': dataSetFromJson}
+		else:
+			groupedDataSets = defaultdict(list)
+			for dataDict in dataSetFromJson:
+				groupedDataSets[" ({})".format(str(dataDict[dataGroupField]))].append(dataDict)
+
+		# convert the data being plotted into numbers
+		traceValues = []
+		for fieldName in chosenDataFields:
+			for groupName in groupedDataSets:
+				traceValues.append([])
+				for dataDict in groupedDataSets[groupName]:
+					traceValues[-1].append(float(dataDict[fieldName]))
+
+		maxRange = 0
+		for values in traceValues:
+			if len(values) > 0:
+				valuesRange = max(values) - min(values)
+				if valuesRange > maxRange:
+					maxRange = valuesRange
+
+		marks = {i:str(i) for i in range(int(0.01*maxRange+2), int(0.2*maxRange+1), int(0.05*maxRange))}
+		marks[0.01*maxRange] = {"label":"Bin Size: {}".format(str(0.01*maxRange)), "style":noWrapStyle}
+
 		return [
 			dcc.Slider(
 				id="graphTuning_slider",
-				min=MIN_BINS,
-				max=MAX_BINS,
+				min=0.01*maxRange,
+				max=0.2*maxRange,
 				marks=marks,
-				value=DEFAULT_BINS,
-				step=1,
+				value=0.1*maxRange,
+				step=0.01,
 				vertical=True,
 				included=False,
 				),
@@ -743,7 +764,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 			instructions += " a"
 		instructions += " " + graphTypeName.lower() + ("" if multiplePlotsBoolean else "s")
 		if graphTypeName == "Histogram":
-			instructions += " (bins = " + str(graphTuningSliderIndex) + ")"
+			instructions += " (bin size = " + str(round(graphTuningSliderIndex,2)) + ")"
 		if graphTypeName == "Violin Plot":
 			if graphTuningSliderIndex != 0:
 				instructions += " (bandwidth = " + str(graphTuningSliderIndex) + ")"
@@ -904,8 +925,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single variable without errors
 		
-		if tuningSliderValue is None or tuningSliderValue < MIN_BINS or tuningSliderValue > MAX_BINS:
-			tuningSliderValue = DEFAULT_BINS
+		if tuningSliderValue is None or tuningSliderValue <= 0:
+			tuningSliderValue = 1.0
 		try:
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
@@ -932,7 +953,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			vertical_spacing=-.05,
 			)
 		for i,trace in enumerate(reversed(graphFigure.data)):
-			trace['hoverinfo'] = 'none'
+			trace['hoverinfo'] = 'none' #TEMP disabled for debugging
 			ridgelineFigure.append_trace(trace, i+1, 1)
 
 		# for name,values in zip(reversed(traceNames), reversed(traceValues)): #TEMP
@@ -942,7 +963,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# layout['showlegend'] = True
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['xaxis']['showline'] = True
-		# layout['yaxis']['hoverformat'] = '.3f'
+		layout['yaxis']['hoverformat'] = '.3f'
 		layout['yaxis']['showticklabels'] = False
 		layout['yaxis']['ticks'] = ''
 		layout['yaxis']['title'] = ''
@@ -951,23 +972,21 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
 				for k,v in layout[key[:5]].items():
 					value[k] = v
-		# from pprint import pprint #TEMP
-		# pprint(graphFigure['data'], sys.stderr) #TEMP
+		axisLabelInterval = 1 / (len(traceValues) + 1)
 		_annotations = []
 		for i in range(len(traceNames)):
-			_histoMax = np.histogram(traceValues[len(traceValues)-i-1], bins=tuningSliderValue, density=True)[0][0]
 			_annotations.append(dict(
 				xref='paper',
 				xanchor='right',
 				x=-0.01,
-				yref='y'+(str(i+1) if (i > 0) else ''),
-				y=0.6*_histoMax*10/tuningSliderValue,
-				text=traceNames[len(traceNames)-i-1],
+				yref='paper',
+				yanchor='top',
+				y=(i+1)*axisLabelInterval,
+				text=traceNames[i],
 				font=dict(size=14, family='Arial'),
 				showarrow=False,
 				))
 		layout['annotations'] = _annotations
-		# print(ridgeLayout, file=sys.stderr) #TEMP
 		del layout['xaxis']
 		del layout['yaxis']
 		ridgeLayout.update(layout)
