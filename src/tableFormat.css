@@ -1,0 +1,15 @@
+.tableformat {
+  border: solid;
+}
+.tableformat td {
+  border: solid;
+  border-width: 0.2px;
+}
+
+.tableformat tr:hover {
+  background-color: yellow;
+}
+
+.tableformat td:hover {
+  background-color: red;
+}
