@@ -415,11 +415,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-<<<<<<< HEAD:frontend.py
 	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/db21df19201571f1b94fb4884791a7e9ff6f5dcb/statscope.js"),
-=======
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/09364c798ae52fa280c16f0124beb2ced7ccb17f/statscope.js"),
->>>>>>> Table_SungHo:src/frontend.py
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -798,7 +794,7 @@ PLOTLY_DEFAULT_COLORS = [
 	# '#7f7f7f',  # middle gray
 	# '#bcbd22',  # curry yellow-green
 	# '#17becf',  # blue-teal
-
+    
     '#8dd3c7' , # R Color Brewer - Set 3 (Pastel)
     '#fb8072',  # R Color Brewer - Set 3 (Pastel)
     '#bebada',  # R Color Brewer - Set 3 (Pastel)
@@ -870,7 +866,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 	layout = dict(
 		paper_bgcolor='rgba(0,0,0,0)',
 		plot_bgcolor='rgba(0,0,0,0)',
-		xaxis=dict(showline=True, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
+		xaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, titlefont=dict(size=15), ticks='outside', tickmode = "auto", nticks = 6, ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		yaxis=dict(showline=False, zeroline=False, hoverformat='.1f', fixedrange=True, showgrid=False, title=str(chosenDataFields)[1:-1].replace("'",""), titlefont=dict(size=15), ticks='outside', ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont = dict(size = 14, family = "Arial")),
 		legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
 		showlegend=False,
@@ -928,15 +924,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single variable without errors
-<<<<<<< HEAD:frontend.py
 		
 		if tuningSliderValue is None or tuningSliderValue <= 0:
 			tuningSliderValue = 1.0
-=======
-
-		if tuningSliderValue is None or tuningSliderValue < MIN_BINSIZE or tuningSliderValue > MAX_BINSIZE:
-			tuningSliderValue = 1
->>>>>>> Table_SungHo:src/frontend.py
 		try:
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
@@ -953,12 +943,12 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
-
+		
 		ridgelineFigure = plotlyTools.make_subplots(
 			rows=len(traceValues),
 			cols=1,
 			specs=[[{}] for i in range(len(traceValues))],
-			shared_xaxes=True,
+			shared_xaxes=True, 
 			shared_yaxes=True,
 			vertical_spacing=-.05,
 			)
@@ -1009,7 +999,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single data point without errors
-
+		
 		if tuningSliderValue is None or tuningSliderValue < 0 or tuningSliderValue >= len(DENSITY_CURVE_TYPES):
 			tuningSliderValue = 0
 		try:
@@ -1043,13 +1033,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# layout['yaxis']['ticktext'] = [ trace['legendgroup'] for trace in graphFigure.data ]
 		# layout['yaxis']['tickvals'] = []
 		# for i,trace in enumerate(graphFigure.data):
-<<<<<<< HEAD:frontend.py
 		# 	if i > 0:	
 		# 		prevMaxY = 0.9*max(graphFigure.data[i-1]['y']) 
-=======
-		# 	if i > 0:
-		# 		prevMaxY = 0.9*max(graphFigure.data[i-1]['y'])
->>>>>>> Table_SungHo:src/frontend.py
 		# 		bottomLineTraces.append({'type':'scatter', 'marker':{'color':'rgba(0,0,0,0)'}, 'x':[min(trace['x']), max(trace['x'])], 'y':[prevMaxY, prevMaxY]})
 		# 		trace['y'] = list(map(lambda y:y+prevMaxY, trace['y']))
 		# 	minY = min(trace['y'])
@@ -1107,47 +1092,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
 			]
 
-		ridgelineFigure = plotlyTools.make_subplots(
-			rows=len(traceValues),
-			cols=1,
-			specs=[[{}] for i in range(len(traceValues))],
-			shared_xaxes=True,
-			shared_yaxes=True,
-			vertical_spacing=-.05,
-			)
-		for i,trace in enumerate(reversed(graphFigure.data)):
-			ridgelineFigure.append_trace(trace, i+1, 1)
-
-		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
-		layout['yaxis']['hoverformat'] = '.3f'
-		layout['yaxis']['showticklabels'] = False
-		layout['yaxis']['ticks'] = ''
-		layout['yaxis']['title'] = ''
-		ridgeLayout = ridgelineFigure['layout']
-		for key,value in ridgeLayout.items():
-			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
-				for k,v in layout[key[:5]].items():
-					value[k] = v
-		layout['annotations'] = [
-			dict(
-				xref='paper',
-				xanchor='right',
-				x=-0.01,
-				yref='y'+(str(i+1) if (i > 0) else ''),
-				y=0.5*max(graphFigure.data[len(traceNames)-i-1]['y']),
-				text=traceNames[len(traceNames)-i-1],
-				font=dict(size=14, family='Arial'),
-				showarrow=False,
-				)
-			for i in range(len(traceNames))
-			]
-		del layout['xaxis']
-		del layout['yaxis']
-		ridgeLayout.update(layout)
-		return [
-			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
-			]
-
 	if graphType == 'Violin Plot':
 
 		traces = [
@@ -1156,15 +1100,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				name=tName,
 				x=values,
 				# opacity=0.6,
-<<<<<<< HEAD:frontend.py
 				side='both', 
 				bandwidth=tuningSliderValue,
 				hoverinfo="none",
-=======
-				side='both',
-				bandwidth=tuningSliderValue,
-				hoverinfo="x",
->>>>>>> Table_SungHo:src/frontend.py
 				hoveron="points+kde",
 				)
 			for tName,values in zip(traceNames,traceValues)
@@ -1240,7 +1178,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for e in tableHolder[0]:
 			categories.append(e)
 
-<<<<<<< HEAD:frontend.py
 		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
 		
 		#TODO hide row values to avoid spoilers
@@ -1250,43 +1187,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		return [
 			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 			html.Div(className="frame", children=[
-=======
-		DummyLayout = dict(
-			paper_bgcolor='rgba(0,0,0,0)',
-			plot_bgcolor='rgba(0,0,0,0)',
-			xaxis=dict(showline=True, zeroline=False, fixedrange=True, showgrid=False, ticks='outside', tickmode="auto", nticks=6, ticklen=5.75, tickwidth=2.4,
-					   tickcolor='darkgray', tickfont=dict(size=14, family="Arial")),
-			yaxis=dict(showline=False, zeroline=False, fixedrange=True, showgrid=False, ticks='outside',
-					   ticklen=5.75, tickwidth=2.4, tickcolor='darkgray', tickfont=dict(size=14, family="Arial")),
-			legend=dict(orientation="h", x=0.5, y=-0.1, xanchor="center"),
-			showlegend=False,
-			margin=dict(t=20, l=140, r=50 if isToggledOn(graphSlidersButtonNClicks + 1) else 25),
-			# TODO adapt left padding to length of labels
-			height=500,
-			titlefont=dict(size=14),
-		)
-		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
-		# print(tableHolder)
-		# print(categories)
-		#TODO hide row values to avoid spoilers
-		# if not showDataBoolean:
-		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
-		traces = [
-			go.Scatter(
-				x=0,
-				y=0
-			)
-		]
-
-		return [
-			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout = DummyLayout), style={'width': '0', 'height' : '0'}, config=graphConfig),
-
-			html.Div(className="frame", children=[
-				html.H1(
-					"Statscope"
-				),
-				html.P("Table : ind-diff-regression", style={'textAlign' : 'center', 'font-size' : '20pt'}),
->>>>>>> Table_SungHo:src/frontend.py
 				html.Table(
 					className="table-format",
 			   		children=[
@@ -1299,10 +1199,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 								html.Td(children=[html.Tr(data) for data in th])
 								for th in tableHolder
 								],
-<<<<<<< HEAD:frontend.py
-=======
-
->>>>>>> Table_SungHo:src/frontend.py
 							style={'opacity':'' if showDataBoolean else '0'},
 				   			)
 			   			])
@@ -1434,11 +1330,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					array=[getError(values)],
 					),
 				orientation='h',
-<<<<<<< HEAD:frontend.py
 				hoverinfo='none',
-=======
-				hoverinfo='x',
->>>>>>> Table_SungHo:src/frontend.py
 				)
 
 			for i,(tName,values) in enumerate(zip(traceNames,traceValues))
