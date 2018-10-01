@@ -1,0 +1,9 @@
+.tableforamt{
+	border-color: white;
+	font-family: "Times New Roman", Times, serif;
+}
+
+.tableHead {
+  border-bottom: solid;
+  border-width: 1px;
+}
