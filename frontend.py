@@ -415,11 +415,7 @@ INITIAL_LAYOUT = html.Div(children=[
 &nbsp;
 		'''),
 
-<<<<<<< HEAD:frontend.py
 	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/db21df19201571f1b94fb4884791a7e9ff6f5dcb/statscope.js"),
-=======
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/09364c798ae52fa280c16f0124beb2ced7ccb17f/statscope.js"),
->>>>>>> Table_SungHo:src/frontend.py
 
 	# prevents things from being cut off or the elements being
 	# excessively wide on large screens
@@ -928,15 +924,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for i,trace in enumerate(traceValues):
 			if len(trace) < 2:
 				del traceValues[i] # can't plot the density of a single variable without errors
-<<<<<<< HEAD:frontend.py
 		
 		if tuningSliderValue is None or tuningSliderValue <= 0:
 			tuningSliderValue = 1.0
-=======
-
-		if tuningSliderValue is None or tuningSliderValue < MIN_BINSIZE or tuningSliderValue > MAX_BINSIZE:
-			tuningSliderValue = 1
->>>>>>> Table_SungHo:src/frontend.py
 		try:
 			graphFigure = ff.create_distplot(
 				traceValues, traceNames,
@@ -1043,13 +1033,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# layout['yaxis']['ticktext'] = [ trace['legendgroup'] for trace in graphFigure.data ]
 		# layout['yaxis']['tickvals'] = []
 		# for i,trace in enumerate(graphFigure.data):
-<<<<<<< HEAD:frontend.py
 		# 	if i > 0:	
-		# 		prevMaxY = 0.9*max(graphFigure.data[i-1]['y']) 
-=======
-		# 	if i > 0:
 		# 		prevMaxY = 0.9*max(graphFigure.data[i-1]['y'])
->>>>>>> Table_SungHo:src/frontend.py
 		# 		bottomLineTraces.append({'type':'scatter', 'marker':{'color':'rgba(0,0,0,0)'}, 'x':[min(trace['x']), max(trace['x'])], 'y':[prevMaxY, prevMaxY]})
 		# 		trace['y'] = list(map(lambda y:y+prevMaxY, trace['y']))
 		# 	minY = min(trace['y'])
@@ -1156,15 +1141,9 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				name=tName,
 				x=values,
 				# opacity=0.6,
-<<<<<<< HEAD:frontend.py
 				side='both', 
 				bandwidth=tuningSliderValue,
 				hoverinfo="none",
-=======
-				side='both',
-				bandwidth=tuningSliderValue,
-				hoverinfo="x",
->>>>>>> Table_SungHo:src/frontend.py
 				hoveron="points+kde",
 				)
 			for tName,values in zip(traceNames,traceValues)
@@ -1240,17 +1219,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for e in tableHolder[0]:
 			categories.append(e)
 
-<<<<<<< HEAD:frontend.py
-		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
-		
-		#TODO hide row values to avoid spoilers
-		# if not showDataBoolean:
-		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
 
-		return [
-			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
-			html.Div(className="frame", children=[
-=======
 		DummyLayout = dict(
 			paper_bgcolor='rgba(0,0,0,0)',
 			plot_bgcolor='rgba(0,0,0,0)',
@@ -1286,7 +1255,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					"Statscope"
 				),
 				html.P("Table : ind-diff-regression", style={'textAlign' : 'center', 'font-size' : '20pt'}),
->>>>>>> Table_SungHo:src/frontend.py
 				html.Table(
 					className="table-format",
 			   		children=[
@@ -1299,10 +1267,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 								html.Td(children=[html.Tr(data) for data in th])
 								for th in tableHolder
 								],
-<<<<<<< HEAD:frontend.py
-=======
-
->>>>>>> Table_SungHo:src/frontend.py
 							style={'opacity':'' if showDataBoolean else '0'},
 				   			)
 			   			])
@@ -1434,11 +1398,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 					array=[getError(values)],
 					),
 				orientation='h',
-<<<<<<< HEAD:frontend.py
 				hoverinfo='none',
-=======
-				hoverinfo='x',
->>>>>>> Table_SungHo:src/frontend.py
 				)
 
 			for i,(tName,values) in enumerate(zip(traceNames,traceValues))
