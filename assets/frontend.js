@@ -59,7 +59,7 @@
 
 		const isWithinPlotBorder = (e) => {
 			try {
-				const panes = document.getElementById("graph").querySelectorAll(".nsewdrag");
+				const panes = document.getElementById("graphId").querySelectorAll(".nsewdrag");
 				for (let i=0; i<panes.length; i++) {
 					const borderRect = panes[i].getBoundingClientRect();
 					if (e.clientX >= borderRect.x && e.clientX <= borderRect.x+borderRect.width
@@ -95,25 +95,8 @@
 		});
 
 		$(document).mouseup(function(e) {
-			// if (drawingIsAllowed() && isWithinPlotBorder(e)) {
-			// 	const graphType = getGraphType();
-			// 	const drawMode = getDrawMode();
-			// 	if (graphType === "Box Plot" && drawMode === "Box" && xBox.length > 0 && (xBox.length%2) === 0) {
-			// 		const drawModeInfo = document.getElementById('drawMode_info');
-			// 		drawModeInfo.innerHTML = JSON.stringify({choices: ['Freehand', 'Line', 'Box'], i: 1});
-			// 		// document.getElementById("drawingControl_slider_container").querySelector(".rc-slider-mark").children[2].innerHTML = "Draw: Line";
-			// 	} else if (graphType === "Dot Plot" && drawMode === "Line" && xLine.length > 0 && (xLine.length%2) === 0) {
-			// 		const drawModeInfo = document.getElementById('drawMode_info');
-			// 		drawModeInfo.innerHTML = JSON.stringify({choices: ['Freehand', 'Line', 'Box'], i: 0});
-			// 		// document.getElementById("drawingControl_slider_container").querySelector(".rc-slider-mark").children[2].innerHTML = "Draw: Freehand";
-			// 	}
-			// }
-			// const clear = () => {
 			if (document.getElementById("graphtypeslider_container").contains(e.target) && (e.target.className === "rc-slider-handle" ||
 			e.target.classList.contains("rc-slider-mark-text") || e.target.classList.contains("rc-slider-dot"))) {
-			// if (document.getElementById('clear_drawing').innerHTML === "true" ||
-			// (e.target.className === "rc-slider-handle" && e.target.style.bottom === "50%") ||
-			// (e.target.classList.contains("rc-slider-mark-text") && e.target.innerHTML === "Reset")) {
 				document.getElementById("drawingInstructions").style.display = "block";
 				xFreehand = new Array();
 				yFreehand = new Array();
@@ -123,48 +106,18 @@
 				xBox = new Array();
 				yBox = new Array();
 				redrawCanvas();
-				// document.getElementById('clear_drawing').innerHTML = "false";
 				const graphType = getGraphType();
 				const drawModeInfo = document.getElementById('drawMode_info');
-				// const drawModeDisplay = document.getElementById("drawingControl_slider_container").querySelector(".rc-slider-mark").children[2];
 				const drawModeChoices = ['Freehand', 'Line', 'Box'];
 				if (graphType==="Density Plot"||graphType==="Violin Plot"||graphType==="Table") {
 					drawModeInfo.innerHTML = JSON.stringify({choices: drawModeChoices, i: 0});
-					// drawModeDisplay.innerHTML = "Draw: Freehand";
 				} else if (graphType === "Dot Plot") {
 					drawModeInfo.innerHTML = JSON.stringify({choices: drawModeChoices, i: 1});
-					// drawModeDisplay.innerHTML = "Draw: Line";
 				} else {
 					drawModeInfo.innerHTML = JSON.stringify({choices: drawModeChoices, i: 2});
-					// drawModeDisplay.innerHTML = "Draw: Box";
 				}
 			}
 			// };
-			// const timeout = 100;
-			// setTimeout(() => {
-			// 	clear();
-			// 	setTimeout(() => {
-			// 		clear();
-			// 		setTimeout(() => {
-			// 			clear();
-			// 			setTimeout(() => {
-			// 				clear();
-			// 				setTimeout(() => {
-			// 					clear();
-			// 				}, timeout);
-			// 			}, timeout);
-			// 		}, timeout);
-			// 	}, timeout);
-			// }, timeout);
-			// if (document.getElementById("drawingControl_slider_container").contains(e.target) && ((e.target.className === "rc-slider-handle" && e.target.style.bottom === "100%") ||
-			// (e.target.classList.contains("rc-slider-mark-text") && e.target.innerHTML.length >= 6 && e.target.innerHTML.substring(0,6) === "Draw: "))) {
-			// 	if (drawingIsAllowed()) {
-			// 		const drawModeInfo = document.getElementById('drawMode_info');
-			// 		drawModeInfo.innerHTML = JSON.stringify({choices: ['Freehand', 'Line', 'Box'], i: (JSON.parse(drawModeInfo.innerHTML).i+1)%3});
-			// 		const sliderLabel = e.target.classList.contains("rc-slider-mark-text")? e.target:e.target.nextElementSibling.children[2];
-			// 		sliderLabel.innerHTML = "Draw: " + getDrawMode();
-			// 	}
-			// }
 			const tuningSliderContainer = document.getElementById("graphTuning_slider_container")
 			const graphType = getGraphType();
 			if (graphType === "Box Plot" && tuningSliderContainer && tuningSliderContainer.contains(e.target)) {
@@ -414,29 +367,29 @@
 		if (_fullscreen) {
 			fullscreenbutton.dataset.title = "Enable full screen";
 			 _fullscreen = false;
-			 Plotly.relayout('graph', {
+			 Plotly.relayout('graphId', {
 				 width: window.innerWidth*originalGraphToWindowRatioWidth,
 				 height: window.innerHeight*originalGraphToWindowRatioHeight,
 			 })
 			 window.addEventListener('resize', () => {
-				 Plotly.relayout('graph', {
+				 Plotly.relayout('graphId', {
 					 width: window.innerWidth*originalGraphToWindowRatioWidth,
 					 height: window.innerHeight*originalGraphToWindowRatioHeight,
 				 })
 			 })
 			 svgContainer.style.backgroundColor = 'transparent';
 		} else {
-			const gd = document.getElementById('graph');
+			const gd = document.getElementById('graphId');
 			originalGraphToWindowRatioWidth = gd._fullLayout.width/window.innerWidth;
 			originalGraphToWindowRatioHeight = gd._fullLayout.height/window.innerHeight;
 			const svgContainer = document.getElementsByClassName('svg-container')[0];
 			svgContainer.style.backgroundColor = 'white';
-			Plotly.relayout('graph', {
+			Plotly.relayout('graphId', {
 				width: window.innerWidth,
 				height: window.innerHeight,
 			  })
 			  window.addEventListener('resize', () => {
-				Plotly.relayout('graph', {
+				Plotly.relayout('graphId', {
 					width: window.innerWidth,
 					height: window.innerHeight,
 				});

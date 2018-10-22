@@ -1,42 +1,6 @@
-"""
-This file defines the appearance and functionality of the web app. It
-has three main parts:
-
-(1) imports from other modules
-(2) defines and parses parameters (CAPITALIZED) that represent
-	the 'static' aspects of the web page
-(3) defines 'callback functions' which control the interactive aspects
-	of the web page
-"""
-
-# imports backend and information from ../user_config
-
-if __name__ == '__main__': # if using the local machine as the web server
-	import sys
-	# from backend import DataSet
-	# sys.path.insert(1, '../user_config')
-	# from settings import (
-	# 	DATA_CSVFILEPATH, DATA_IDFIELD,
-	# 	INITIAL_GRAPHTYPE, INITIAL_DATAFIELDS, INITIAL_DATAFILTERS,
-	# 	)
-	# CSVPATH_CACHE = DATA_CSVFILEPATH
-	# DATA_CSVFILEPATH = '../user_config/' + DATA_CSVFILEPATH
-	# import filter_functions as FILTER_FUNCTIONS
-
-# else: # if using gunicorn (../Procfile) + Heroku as the web server
-	# from src.backend import DataSet
-	# from user_config.settings import (
-	# 	DATA_CSVFILEPATH, DATA_IDFIELD,
-	# 	INITIAL_GRAPHTYPE, INITIAL_DATAFIELDS, INITIAL_DATAFILTERS,
-	# 	)
-	# CSVPATH_CACHE = DATA_CSVFILEPATH
-	# DATA_CSVFILEPATH = 'user_config/' + DATA_CSVFILEPATH
-	# import user_config.filter_functions as FILTER_FUNCTIONS
-
 INITIAL_GRAPHTYPE = 'Density Plot'
 
-# imports graphing and page layout libraries
-import dash # ==0.22.0
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
@@ -47,14 +11,16 @@ from dash.dependencies import Input, Output, State
 import json
 import numpy as np
 import scipy.stats as scipyStats
+import base64
+import io
+import csv
+from collections import Mapping
+from collections import defaultdict
+import sys
 
 CSS_URL = 'https://codepen.io/chriddyp/pen/bWLwgP.css'
+#^ basic dash stylesheet to make all ui elements match the graphs
 WEBAPP_TITLE = 'statscope' # title of the webpages' tab
-
-# unique string IDs for UI elements
-GRAPH_ID = 'graph'
-GRAPHTYPESLIDER_ID = '1'
-DATATYPEDROPDOWN_ID = '2'
 
 # names and ordering of available graph types
 GRAPHTYPE_CHOICES = [
@@ -86,18 +52,6 @@ BARDOTPLOTERROR_CHOICES = [
 	"SEM",
 	]
 
-# DRAWCONTROL_CHOICES = [
-# 	'Submit', # bottom choice
-# 	'Reset',
-# 	'Draw: Freehand', # top choice
-# 	]
-
-# FILTER_CHOICES = [
-# 	"analyticMajor",
-# 	"nativeEnglish",
-# 	"All",
-# 	]
-
 DENSITY_CURVE_TYPES = [
 	'kde',
 	'normal',
@@ -109,23 +63,6 @@ DRAWMODE_CHOICES = [
 	'Box',
 	]
 
-# # parses the parameters into helper variables
-# dataSet = DataSet()
-# dataSet.addCsv(DATA_CSVFILEPATH)
-# chosenDataFields = [
-# 	fieldName
-# 	for fieldName in dataSet.getSchema(DATA_CSVFILEPATH)
-# 	]
-# filterFunctions = {} # maps filter function names' to their function objects
-# def _negate(func):
-# 	return (lambda x : not func(x))
-# for name, func in FILTER_FUNCTIONS.__dict__.items():
-# 	if callable(func):
-# 		filterFunctions[name] = func
-# 		# adds a negated version of every filter
-# 		filterFunctions['not_' + name] = _negate(func)
-
-# lays out the basic HTML along with the interactive components
 INITIAL_LAYOUT = html.Div(children=[
 
 	html.Div(
@@ -136,10 +73,6 @@ INITIAL_LAYOUT = html.Div(children=[
 				id='drawMode_info',
 				children=json.dumps({'choices':DRAWMODE_CHOICES, 'i':len(DRAWMODE_CHOICES)-1}),
 				),
-			# html.Div(
-			# 	id='clear_drawing',
-			# 	children="false",
-			# 	),
 			html.Div(
 				id="showDataIndicator",
 				children="false",
@@ -178,10 +111,7 @@ INITIAL_LAYOUT = html.Div(children=[
 				style=dict(
 					position="absolute",
 					fontSize="18px",
-					# whiteSpace="nowrap",
-					# overflow="hidden",
-					# textOverflow="ellipsis",
-					left="calc(50% + 60px)", #TODO adapt to adaptive left padding when implemented
+					left="calc(50% + 60px)",
 					maxWidth="320px",
 					textAlign="center",
 					# top="calc(486px/2)",
@@ -200,10 +130,8 @@ INITIAL_LAYOUT = html.Div(children=[
 					zIndex='-1',
 					),
 				children=[
-					# displays the data, controlled by the callback function 'updateGraph'
-					# defined below
 					dcc.Graph(
-						id=GRAPH_ID,
+						id="graphId",
 						# config={'staticPlot':True},
 						figure=go.Figure(layout=dict(
 							paper_bgcolor='rgba(0,0,0,0)',
@@ -212,27 +140,6 @@ INITIAL_LAYOUT = html.Div(children=[
 						),
 					],
 				),
-			# html.Div(
-			# 	id='drawingControl_slider_container',
-			# 	children=[
-			# 		dcc.Slider(
-			# 			id='drawingControl_slider',
-			# 			min=0,
-			# 			max=len(DRAWCONTROL_CHOICES)-1,
-			# 			marks={i: m for i, m in enumerate(DRAWCONTROL_CHOICES)},
-			# 			included=False,
-			# 			step=None,
-			# 			vertical=True,
-			# 			value=len(DRAWCONTROL_CHOICES)-1,
-			# 			),
-			# 		],
-			# 	style={
-			# 		'position': 'absolute',
-			# 		'height': '250',
-			# 		'left': '-70',
-			# 		'bottom': '100',
-			# 		},
-			# 	),
 			html.Div(
 				id='graphTuning_slider_container',
 				children=[
@@ -252,12 +159,11 @@ INITIAL_LAYOUT = html.Div(children=[
 		style={"position":"relative", "height":"400px"},
 		),
 
-	# graph type slider
 	html.Div(
 		id='graphtypeslider_container',
 		children=[
 			dcc.Slider(
-				id=GRAPHTYPESLIDER_ID,
+				id="graphTypeSliderId",
 				min=0,
 				max=len(GRAPHTYPE_CHOICES)-1,
 				marks={i:m for i,m in enumerate(GRAPHTYPE_CHOICES)},
@@ -341,7 +247,7 @@ INITIAL_LAYOUT = html.Div(children=[
 		children=[
 			# data field selector
 			dcc.Dropdown(
-				id=DATATYPEDROPDOWN_ID,
+				id="dataTypeDropdownId",
 				options=[],
 				multi=True,
 				value=[],
@@ -379,46 +285,13 @@ INITIAL_LAYOUT = html.Div(children=[
 			},
 		),
 
-# 	#line break
-# 	dcc.Markdown('''
-# &nbsp;
-# 		'''),
-
-	# html.Div(
-	# 	id="binSizePrompt",
-	# 	children=["Select histogram bin size:"],
-	# 	style={
-	# 		"display":"none",
-	# 		'text-align':'center'
-	# 		},
-	# 	),
-
-	# html.Div(id='binSizeSlider_container',
-	# 	children=[
-	# 		# data field selector
-	# 		dcc.Slider(
-	# 			id="binSizeSlider",
-	# 			min=1,
-	# 			max=50,
-	# 			marks=dict({1:"1"}.items() | {i:str(i) for i in range(5,55,5)}.items()),
-	# 			value=1,
-	# 			step=1,
-	# 			),
-	# 		],
-	# 	style={
-	# 		"display":"none"
-	# 		},
-	# 	), 
-
 	#line break
 	dcc.Markdown('''
 &nbsp;
 		'''),
 
-	gdc.Import(src="https://rawgit.com/MasalaMunch/6de3a86496cca99f4786d81465980f96/raw/db21df19201571f1b94fb4884791a7e9ff6f5dcb/statscope.js"),
+	gdc.Import(src="/assets/frontend.js"),
 
-	# prevents things from being cut off or the elements being
-	# excessively wide on large screens
 	], style={'maxWidth':'1100px',
 			  'padding-left':'0px', 'padding-right':'110px',
 			  'user-select':'none', '-ms-user-select':'none',
@@ -427,8 +300,7 @@ INITIAL_LAYOUT = html.Div(children=[
 			  }
 	)
 
-# creates the "app" helper variable
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, assets_ignore='.*.js')
 app.layout = INITIAL_LAYOUT
 server = app.server
 app.scripts.append_script({"external_url":"https://code.jquery.com/jquery-1.11.0.min.js"})
@@ -447,19 +319,15 @@ def updateRangeToZeroIndicator(nClicks:int, rangeToZeroIndicator:str):
 
 @app.callback(
 	Output("graphTypeIndicator", "children"),
-	[Input(GRAPHTYPESLIDER_ID, "value")],
+	[Input("graphTypeSliderId", "value")],
 	)
 def updateGraphTypeIndicator(graphTypeIndex:int):
 	return GRAPHTYPE_CHOICES[graphTypeIndex];
 
 @app.callback(
 	Output('drawMode_info', 'children'),
-	[Input(GRAPHTYPESLIDER_ID, 'value')],
-	# [Input('drawingControl_slider', 'value'),
-	#  Input(GRAPHTYPESLIDER_ID, 'value')],
-	# [State('drawMode_info', 'children')],
+	[Input("graphTypeSliderId", 'value')],
 	)
-# def updateDrawModeInfo(sliderIndex:str, graphType:int, drawModeInfo:list):
 def updateDrawModeInfo(graphType:int):
 	graphTypeName = GRAPHTYPE_CHOICES[graphType]
 	output = dict(choices=DRAWMODE_CHOICES)
@@ -471,40 +339,6 @@ def updateDrawModeInfo(graphType:int):
 		output['i'] = 2
 	return json.dumps(output)
 
-# @app.callback(
-# 	Output('drawingControl_slider', 'marks'),
-# 	[Input('drawMode_info', 'children')],
-# 	)
-# def updateDrawingControlSliderMark(drawModeInfo:str):
-# 	drawMode = DRAWMODE_CHOICES[json.loads(drawModeInfo)['i']]
-# 	out = {i: m for i, m in enumerate(DRAWCONTROL_CHOICES)}
-# 	out[len(DRAWMODE_CHOICES)-1] = 'Draw: ' + drawMode
-	# return out
-
-# @app.callback(
-# 	Output('showdata_checkbox_info', 'children'),
-# 	[Input('drawingControl_slider', 'value')],
-# 	)
-# def updateShowDataCheckBoxInfo(sliderIndex:int):
-# 	if sliderIndex == 0: # bottom choice
-# 		return json.dumps({'allowDrawing':False})
-# 	else:
-# 		return json.dumps({'allowDrawing':True})
-
-# @app.callback(
-# 	Output('clear_drawing', 'children'),
-# 	[Input('drawingControl_slider', 'value')],
-# 	)
-# def updateClearDrawing(sliderIndex:int):
-# 	if sliderIndex == 1: # middle slider position
-# 		return "true"
-# 	else:
-# 		return "false"
-
-import base64
-import io
-import csv
-
 @app.callback(
 	Output("datafieldselector_container", "children"),
 	[Input("data_uploader", "contents"),
@@ -513,7 +347,7 @@ import csv
 def updateDataFieldSelector(fileContents:str, filename:str):
 
 	return [dcc.Dropdown(
-		id=DATATYPEDROPDOWN_ID,
+		id="dataTypeDropdownId",
 		options=[
 			{"label":e,"value":e}
 			for e in
@@ -556,7 +390,7 @@ def updateDataGroupFieldSelector(fileContents:str, filename:str):
 def isToggledOn(nClicks:int):
 	return (nClicks % 2 == 0)
 
-def guessBandwidth(values):
+def guessViolinPlotBandwidth(values):
 	# adapted from https://github.com/plotly/plotly.js/blob/1a050e85c2b901b2579af0a5e09df00197271ca9/src/traces/violin/calc.js#L74-L81
 	return max(
 		1.059 * min(
@@ -568,8 +402,8 @@ def guessBandwidth(values):
 
 @app.callback(
 	Output("graphTuning_slider_container", "children"),
-	[Input(GRAPHTYPESLIDER_ID, "value"),
-	 Input(DATATYPEDROPDOWN_ID, 'value'),
+	[Input("graphTypeSliderId", "value"),
+	 Input("dataTypeDropdownId", 'value'),
 	 Input('dataGroupFieldSelector', 'value'),
 	 Input("uploaded_fileAsJson", "children")]
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
@@ -659,7 +493,7 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 
 		maxBandwidth = 0
 		for values in traceValues:
-			bandwidth = guessBandwidth(values)
+			bandwidth = guessViolinPlotBandwidth(values)
 			if bandwidth > maxBandwidth:
 				maxBandwidth = bandwidth
 
@@ -738,12 +572,11 @@ def updateGraphTuningSliderContainer(graphTypeIndex:int, chosenDataFields:list, 
 				),
 			]
 
-from collections import Mapping
 
 @app.callback(
 	Output("drawingInstructions", "children"),
-	[Input(DATATYPEDROPDOWN_ID, 'value'),
-	 Input(GRAPHTYPESLIDER_ID, 'value'),
+	[Input("dataTypeDropdownId", 'value'),
+	 Input("graphTypeSliderId", 'value'),
 	 Input('dataGroupFieldSelector', 'value'),
 	 Input('showDataIndicator', 'children'),
 	 Input("graphTuning_slider", "value")]
@@ -782,7 +615,7 @@ def updateDrawingInstructions(chosenDataFields:list, graphType:int, dataGroupFie
 		instructions += '. Double-click ' + ('it' if multiplePlotsBoolean else 'them') + ' to submit.'
 	return [instructions]
 
-PLOTLY_DEFAULT_COLORS = [
+TRACE_COLORS = [
 
 	# '#1f77b4',  # muted blue
 	# '#ff7f0e',  # safety orange
@@ -829,15 +662,14 @@ PLOTLY_DEFAULT_COLORS = [
 	# '#FDE725FF', # viridis 20
 	]
 
-from collections import defaultdict
+def log(s):
+	print(s, file=sys.stderr)
 
 @app.callback(
 	Output('graph_container', 'children'),
-	[Input(DATATYPEDROPDOWN_ID, 'value'),
-	 Input(GRAPHTYPESLIDER_ID, 'value'),
-	 # Input('drawingControl_slider', 'value'),
+	[Input("dataTypeDropdownId", 'value'),
+	 Input("graphTypeSliderId", 'value'),	
 	 Input('dataGroupFieldSelector', 'value'),
-	 # Input('drawingControl_slider', 'value'),
 	 Input("uploaded_fileAsJson", "children"),
 	 Input("graphTuning_slider", "value"),
 	 Input("rangeToZeroIndicator", "children"),
@@ -846,10 +678,6 @@ from collections import defaultdict
 	+ [ Input("boxPlotToggles-"+e, "n_clicks") for e in BOXPLOTINFO_CHOICES ],
 	)
 def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJson:str, tuningSliderValue:int, rangeToZeroIndicator:str, showDataIndicator:str, graphSlidersButtonNClicks:int, boxPlotMean, boxPlotOutliers, boxPlotNotch):
-	"""
-	updates the graph based on the chosen data fields, data filters,
-	and graph type
-	"""
 
 	graphConfig = dict(
 		modeBarButtonsToRemove=["toImage", "sendDataToCloud", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian", "toggleHover", "select2d", "lasso2d"],
@@ -881,7 +709,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['legend']['font'] = dict(color="rgba(0,0,0,0)")
 
 	if len(chosenDataFields) == 0:
-		return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
+		return [dcc.Graph(id="graphId", figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
 	dataSetFromJson = json.loads(csvAsJson)
 
@@ -908,7 +736,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 						minValue = value
 	except ValueError:
 		layout['title'] = "Error: Can't plot non-numeric data on a numeric axis."
-		return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
+		return [dcc.Graph(id="graphId", figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
 	traceNames = [
 		fieldName + groupName
@@ -918,6 +746,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	# layout['margin']['l'] = 5*max(len(s) for s in traceNames)
 	# layout['margin']['l'] = 80 + 5*max(0,max(len(s) for s in traceNames)-10)
+	#^ disabled because causes dash errors when switching between table and other plots
 
 	if graphType == 'Histogram':
 
@@ -934,12 +763,12 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				)
 		except Exception as e:
 			layout['title'] = "Error: " + str(e) # show error message in graph title
-			return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
+			return [dcc.Graph(id="graphId", figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
 				trace['opacity'] = 1.0
-				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+				trace['marker']['color'] = TRACE_COLORS[i % len(TRACE_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
@@ -968,9 +797,11 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['ticks'] = ''
 		layout['yaxis']['title'] = ''
 		ridgeLayout = ridgelineFigure['layout']
-		for key,value in ridgeLayout.items():
+		for key in ridgeLayout:
+			value = ridgeLayout[key]
 			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
-				for k,v in layout[key[:5]].items():
+				for k in layout[key[:5]]:
+					v = layout[key[:5]][k]
 					value[k] = v
 		axisLabelInterval = 1 / (len(traceValues) + 1)
 		_annotations = []
@@ -991,7 +822,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		del layout['yaxis']
 		ridgeLayout.update(layout)
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
+			dcc.Graph(id="graphId", figure=ridgelineFigure, config=graphConfig)
 			]
 
 	if graphType == 'Density Plot':
@@ -1009,14 +840,14 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				)
 		except Exception as e:
 			layout['title'] = "Error: " + str(e) # show error message in graph title
-			return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
+			return [dcc.Graph(id="graphId", figure=go.Figure(layout=layout), config=graphConfig)] # empty graph
 
 		if showDataBoolean:
 			for i,trace in enumerate(graphFigure.data):
 				# trace['fill'] = 'tonexty'
 				trace['fill'] = 'tozeroy'
-				trace['marker']['color'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
-				trace['fillcolor'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+				trace['marker']['color'] = TRACE_COLORS[i % len(TRACE_COLORS)]
+				trace['fillcolor'] = TRACE_COLORS[i % len(TRACE_COLORS)]
 		else:
 			for trace in graphFigure.data:
 				trace['marker']['color'] = 'rgba(0,0,0,0)'
@@ -1046,7 +877,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		# layout['yaxis']['title'] = ''
 		# graphFigure['layout'].update(layout)
 		# return [
-		# 	dcc.Graph(id=GRAPH_ID, figure=graphFigure, config=graphConfig)
+		# 	dcc.Graph(id="graphId", figure=graphFigure, config=graphConfig)
 		# 	]
 		
 		ridgelineFigure = plotlyTools.make_subplots(
@@ -1068,9 +899,11 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['ticks'] = ''
 		layout['yaxis']['title'] = ''
 		ridgeLayout = ridgelineFigure['layout']
-		for key,value in ridgeLayout.items():
+		for key in ridgeLayout:
+			value = ridgeLayout[key]
 			if len(key) >= 5 and (key[:5] == "xaxis" or key[:5] == "yaxis"):
-				for k,v in layout[key[:5]].items():
+				for k in layout[key[:5]]:
+					v = layout[key[:5]][k]
 					value[k] = v
 		layout['annotations'] = [
 			dict(
@@ -1089,7 +922,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		del layout['yaxis']
 		ridgeLayout.update(layout)
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=ridgelineFigure, config=graphConfig)
+			dcc.Graph(id="graphId", figure=ridgelineFigure, config=graphConfig)
 			]
 
 	if graphType == 'Violin Plot':
@@ -1110,7 +943,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(traces):
-				trace['fillcolor'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+				trace['fillcolor'] = TRACE_COLORS[i % len(TRACE_COLORS)]
 				trace['line'] = dict(color="black")
 		else:
 			for trace in traces:
@@ -1120,6 +953,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		layout['yaxis']['title'] = ''
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		# layout['margin']['l'] = 140
+		#^ disabled because causes dash errors when switching between table and other plots
 
 	elif graphType == 'Table':
 
@@ -1178,20 +1012,19 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 		for e in tableHolder[0]:
 			categories.append(e)
 
-		# layout['margin']['t'] = '40' // disabled because causes dash errors when switching between table and other plots
+		# layout['margin']['t'] = '40'
+		#^ disabled because causes dash errors when switching between table and other plots
 		
-		#TODO hide row values to avoid spoilers
-		# if not showDataBoolean:
-		# 	traces[0]['cells']['font'] = dict(color=['', 'rgba(0,0,0,0)'])
-
 		return [
-			dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
+			dcc.Graph(id="graphId", figure=go.Figure(data=[go.Table()], layout=layout), style={'width': '0', 'height' : '0'}, config=graphConfig),
 			html.Div(className="frame", children=[
 				html.Table(
 					className="table-format",
 			   		children=[
 				   		html.Thead(
-					   		html.Tr(children=[html.Th(th) for th in ['']+categories[0]])
+					   		html.Tr(
+					   			children=[html.Th(th) for th in ['']+categories[0]],
+					   			)
 				   		),
 				   		html.Tbody(
 				   			className="table-body",
@@ -1199,7 +1032,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 								html.Td(children=[html.Tr(data) for data in th])
 								for th in tableHolder
 								],
-							style={'opacity':'' if showDataBoolean else '0'},
+							style={'opacity':('' if showDataBoolean else '0')},
 				   			)
 			   			])
 				])
@@ -1223,7 +1056,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 		if showDataBoolean:
 			for i,trace in enumerate(traces):
-				trace['fillcolor'] = PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)]
+				trace['fillcolor'] = TRACE_COLORS[i % len(TRACE_COLORS)]
 				trace['marker'] = dict(color="black")
 		else:
 			for trace in traces:
@@ -1249,7 +1082,6 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 	if graphType == 'Dot Plot':
 
-		# dummy traces to avoid rendering errors
 		traces = [
 			dict(
 				visible='legendonly',
@@ -1259,8 +1091,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				)
 			for values in traceValues
 			]
+		#^ dummy traces to avoid rendering errors
 
-		# real traces
 		traces += [
 			go.Scatter(
 				name=tName,
@@ -1271,12 +1103,12 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				    thickness = 4.0,
 					type='data',
 					array=[getError(values)],
-					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					color=TRACE_COLORS[i % len(TRACE_COLORS)],
 					),
 				# width=0.01,
 				marker=dict(
 					size = 10,
-					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					color=TRACE_COLORS[i % len(TRACE_COLORS)],
 					),
 				hoverinfo='none',
 				# orientation='h',
@@ -1284,6 +1116,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 
 			for i,(tName,values) in enumerate(zip(traceNames,traceValues))
 			]
+		#^ real traces
 
 		if not showDataBoolean:
 			for i in range(len(traceValues), 2*len(traceValues)):
@@ -1291,6 +1124,8 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				traces[i]['error_x']['color'] = 'rgba(0,0,0,0)'
 
 		# layout['margin']['l'] = 140
+		#^ disabled because causes dash errors when switching between table and other plots
+
 		layout['yaxis']['title'] = ""
 		layout['yaxis']['type'] = 'category'
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
@@ -1320,7 +1155,7 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				y=[tName],
 				# opacity=0.6,
 				marker=dict(
-					color=PLOTLY_DEFAULT_COLORS[i % len(PLOTLY_DEFAULT_COLORS)],
+					color=TRACE_COLORS[i % len(TRACE_COLORS)],
 					),
 				error_x=dict(
 					type='data',
@@ -1342,13 +1177,14 @@ def updateGraph(chosenDataFields:list, graphType:int, dataGroupField:str, csvAsJ
 				traces[i]['error_x']['color'] = 'rgba(0,0,0,0)'
 
 		# layout['margin']['l'] = 140
+		#^ disabled because causes dash errors when switching between table and other plots
 		layout['yaxis']['title'] = ""
 		layout['xaxis']['title'] = str(chosenDataFields)[1:-1].replace("'","")
 		layout['yaxis']['type'] = 'category'
 		layout['xaxis']['autorange'] = False
 		layout['xaxis']['range'] = [minValue, maxValue]
 
-	return [dcc.Graph(id=GRAPH_ID, figure=go.Figure(data=traces, layout=layout), config=graphConfig)]
+	return [dcc.Graph(id="graphId", figure=go.Figure(data=traces, layout=layout), config=graphConfig)]
 
 @app.callback(
 	Output('graph_container', 'style'),
